@@ -25,10 +25,10 @@ import java.util.UUID;
 public class UUIDDatabase {
 
     /**
-     * WunderLINQ related UUID
+     * GoPro related UUID
      */
-    public static final UUID UUID_WUNDERLINQ_SERVICE = UUID
-            .fromString(GattAttributes.WUNDERLINQ_SERVICE);
+    public static final UUID UUID_GOPRO_SERVICE = UUID
+            .fromString(GattAttributes.GOPRO_SERVICE);
     public static final UUID UUID_WUNDERLINQ_MESSAGE_CHARACTERISTIC = UUID
             .fromString(GattAttributes.WUNDERLINQ_MESSAGE_CHARACTERISTIC);
     public final static UUID UUID_WUNDERLINQ_COMMAND_CHARACTERISTIC = UUID

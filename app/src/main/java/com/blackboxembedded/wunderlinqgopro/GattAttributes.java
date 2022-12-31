@@ -28,9 +28,9 @@ public class GattAttributes {
     private static HashMap<UUID, String> attributesUUID = new HashMap<UUID, String>();
 
     /**
-     * WunderLINQ Service and Characteristics
+     * GoPro Service and Characteristics
      */
-    public static final String WUNDERLINQ_SERVICE = "02997340-015f-11e5-8c2b-0002a5d5c51b";
+    public static final String GOPRO_SERVICE = "0000FEA6-0000-1000-8000-00805f9b34fb";
     public static final String WUNDERLINQ_MESSAGE_CHARACTERISTIC = "00000003-0000-1000-8000-00805f9b34fb";
     public static final String WUNDERLINQ_COMMAND_CHARACTERISTIC = "00000004-0000-1000-8000-00805f9b34fb";
 
@@ -60,7 +60,7 @@ public class GattAttributes {
 
     static {
         // WunderLINQ
-        attributesUUID.put(UUIDDatabase.UUID_WUNDERLINQ_SERVICE, "WunderLINQ Service");
+        attributesUUID.put(UUIDDatabase.UUID_GOPRO_SERVICE, "GoPro Service");
         attributesUUID.put(UUIDDatabase.UUID_WUNDERLINQ_MESSAGE_CHARACTERISTIC, "WunderLINQ Messages");
         attributesUUID.put(UUIDDatabase.UUID_WUNDERLINQ_COMMAND_CHARACTERISTIC, "WunderLINQ Commands");
 

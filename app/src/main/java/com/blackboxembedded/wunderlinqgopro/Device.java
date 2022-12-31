@@ -22,23 +22,18 @@ import android.util.Log;
 
 public class Device {
     BluetoothDevice device;
-    int rssi; //dBm
 
     // Empty constructor
     public Device(){
 
     }
     // Constructor
-    public Device(BluetoothDevice device, int rssi) {
+    public Device(BluetoothDevice device) {
         this.device = device;
-        this.rssi = rssi;
     }
 
     public BluetoothDevice getDevice(){
         return this.device;
-    }
-    public int getRssi(){
-        return this.rssi;
     }
 
     @Override
