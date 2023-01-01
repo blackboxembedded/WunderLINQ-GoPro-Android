@@ -120,7 +120,7 @@ public class DeviceScanActivity extends AppCompatActivity {
             }
         });
 
-        getSupportActionBar().setTitle(R.string.title_devices);
+        getSupportActionBar().setTitle(R.string.cameralist_title);
         mHandler = new Handler();
 
         // Use this check to determine whether BLE is supported on the device.  Then you can
@@ -276,6 +276,7 @@ public class DeviceScanActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(DeviceScanActivity.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, PERMISSION_REQUEST_BLUETOOTH_CONNECT);
             } else {
                 if (!mLeDevices.contains(device)) {
+                    Log.d(TAG,"Found Camera: " + device.getDevice().getName());
                     mLeDevices.add(device);
                 }
             }

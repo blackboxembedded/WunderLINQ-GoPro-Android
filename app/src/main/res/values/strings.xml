@@ -1,10 +1,18 @@
 <resources>
     <string name="app_name">WunderLINQ GoPro Remote</string>
     <string name="ble_not_supported">BLE is not supported</string>
+    <string name="cameralist_title">GoPros</string>
+    <string name="task_title_photo">Take Photo</string>
+    <string name="task_title_start_record">Start Video Recording</string>
+    <string name="task_title_stop_record">Stop Video Recording</string>
+    <string name="task_title_start_timelapse">Start Timelapse Recording</string>
+    <string name="task_title_stop_timelapse">Stop Timelapse Recording</string>
+    <string name="pref_highlightColor_title">Highlight Color</string>
+
+
     <string name="scanBtn">Scan</string>
     <string name="connected">Connected</string>
     <string name="disconnected">Disconnected</string>
-    <string name="title_devices">GoPros</string>
     <string name="error_bluetooth_not_supported">Bluetooth not supported.</string>
     <string name="unknown_device">Unknown device</string>
     <string name="location_alert_title">Location Request</string>
@@ -12,9 +20,4 @@
     <string name="negative_alert_title">Location Request Denied</string>
     <string name="negative_location_alert_body">Location Permissions are required for Bluetooth scanning</string>
 
-    <!-- Menu items -->
-    <string name="menu_connect">Connect</string>
-    <string name="menu_disconnect">Disconnect</string>
-    <string name="menu_scan">Scan</string>
-    <string name="menu_stop">Stop</string>
 </resources>
