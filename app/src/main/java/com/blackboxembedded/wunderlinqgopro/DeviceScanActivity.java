@@ -32,6 +32,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import androidx.appcompat.app.AlertDialog;
@@ -43,6 +44,8 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -78,6 +81,8 @@ public class DeviceScanActivity extends AppCompatActivity {
 
     ListView listView;
     Button scanButton;
+
+    private int lastPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -195,24 +200,47 @@ public class DeviceScanActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.menu_settings:
+                //Launch Settings
+                //TODO
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         switch (keyCode) {
-            case KeyEvent.KEYCODE_ENTER:
-
-                return true;
             case KeyEvent.KEYCODE_DPAD_UP:
             case KeyEvent.KEYCODE_PLUS:
             case KeyEvent.KEYCODE_NUMPAD_ADD:
-
+                if (listView.getSelectedItemPosition() == 0 && lastPosition == 0){
+                    listView.setSelection(listView.getCount() - 1);
+                }
+                lastPosition = listView.getSelectedItemPosition();
                 return true;
             case KeyEvent.KEYCODE_DPAD_DOWN:
             case KeyEvent.KEYCODE_MINUS:
             case KeyEvent.KEYCODE_NUMPAD_SUBTRACT:
-
+                if ((listView.getSelectedItemPosition() == (listView.getCount() - 1)) && lastPosition == (listView.getCount() - 1) ){
+                    listView.setSelection(0);
+                }
+                lastPosition = listView.getSelectedItemPosition();
                 return true;
-            case KeyEvent.KEYCODE_DPAD_LEFT:
-                return true;
-            case KeyEvent.KEYCODE_DPAD_RIGHT:
+            case KeyEvent.KEYCODE_ESCAPE:
+                String callingApp = "wunderlinq://";
+                Intent intent = new
+                        Intent(android.content.Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(callingApp));
+                startActivity(intent);
                 return true;
             default:
                 return super.onKeyUp(keyCode, event);

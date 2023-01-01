@@ -30,14 +30,14 @@ public class GattAttributes {
     /**
      * GoPro Service and Characteristics
      */
-    public static final String GOPRO_CONTROL_SERVICE = "0000FEA6-0000-1000-8000-00805f9b34fb";
-    public static final String GOPRO_COMMAND_CHARACTERISTIC = "B5F90072-AA8D-11E3-9046-0002A5D5C51B";
-    public static final String GOPRO_COMMANDRESPONSE_CHARACTERISTIC = "B5F90073-AA8D-11E3-9046-0002A5D5C51B";
-    public static final String GOPRO_QUERY_CHARACTERISTIC = "B5F90076-AA8D-11E3-9046-0002A5D5C51B";
-    public static final String GOPRO_QUERYRESPONSE_CHARACTERISTIC = "B5F90077-AA8D-11E3-9046-0002A5D5C51B";
+    public static final String GOPRO_CONTROL_SERVICE = "0000fea6-0000-1000-8000-00805f9b34fb";
+    public static final String GOPRO_COMMAND_CHARACTERISTIC = "b5f90072-aa8d-11e3-9046-0002a5d5c51b";
+    public static final String GOPRO_COMMANDRESPONSE_CHARACTERISTIC = "b5f90073-aa8d-11e3-9046-0002a5d5c51b";
+    public static final String GOPRO_QUERY_CHARACTERISTIC = "b5f90076-aa8d-11e3-9046-0002a5d5c51b";
+    public static final String GOPRO_QUERYRESPONSE_CHARACTERISTIC = "b5f90077-aa8d-11e3-9046-0002a5d5c51b";
     public static final String GOPRO_WIFI_SERVICE = "b5f90001-aa8d-11e3-9046-0002a5d5c51b";
-    public static final String GOPRO_WIFI_SSID_CHARACTERISTIC = "B5F90002-AA8D-11E3-9046-0002A5D5C51B";
-    public static final String GOPRO_WIFI_PASSWORD_CHARACTERISTIC = "B5F90003-AA8D-11E3-9046-0002A5D5C51B";
+    public static final String GOPRO_WIFI_SSID_CHARACTERISTIC = "b5f90002-aa8d-11e3-9046-0002a5d5c51b";
+    public static final String GOPRO_WIFI_PASSWORD_CHARACTERISTIC = "b5f90003-aa8d-11e3-9046-0002a5d5c51b";
     public static final String GOPRO_MGMT_SERVICE = "b5f90090-aa8d-11e3-9046-0002a5d5c51b";
 
     /**

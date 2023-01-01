@@ -25,11 +25,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -42,12 +45,17 @@ public class DeviceControlActivity extends AppCompatActivity {
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
 
+    private String mDeviceName;
     private String mDeviceAddress;
     private BluetoothLeService mBluetoothLeService;
 
     private boolean mConnected = false;
 
     private BluetoothGattCharacteristic characteristic;
+    private static BluetoothGattCharacteristic commandCharacteristic;
+    public static BluetoothGattCharacteristic commandResponseCharacteristic;
+    private static BluetoothGattCharacteristic queryCharacteristic;
+    public static BluetoothGattCharacteristic queryResponseCharacteristic;
 
     private Button shutterBtn;
 
@@ -123,14 +131,17 @@ public class DeviceControlActivity extends AppCompatActivity {
 
         final Intent intent = getIntent();
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
+        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
 
         // Keep screen on
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        getSupportActionBar().setTitle(mDeviceName);
+
         shutterBtn = (Button) findViewById(R.id.shutterBtn);
         shutterBtn.setOnClickListener(mClickListener);
 
-        shutterBtn.setEnabled(false);
+        shutterBtn.setVisibility(View.INVISIBLE);
 
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
@@ -161,6 +172,44 @@ public class DeviceControlActivity extends AppCompatActivity {
         mBluetoothLeService = null;
     }
 
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_ENTER:
+                //Toggle Shutter
+                //TODO
+                return true;
+            case KeyEvent.KEYCODE_DPAD_UP:
+            case KeyEvent.KEYCODE_PLUS:
+            case KeyEvent.KEYCODE_NUMPAD_ADD:
+                //Scroll through modes
+                //TODO
+                return true;
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+            case KeyEvent.KEYCODE_MINUS:
+            case KeyEvent.KEYCODE_NUMPAD_SUBTRACT:
+                //Scroll through modes
+                //TODO
+                return true;
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+                finish();
+                return true;
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                //Open Camera Preview
+                //TODO
+                return true;
+            case KeyEvent.KEYCODE_ESCAPE:
+                String wunderLINQApp = "wunderlinq://";
+                Intent intent = new
+                        Intent(android.content.Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(wunderLINQApp));
+                startActivity(intent);
+                return true;
+            default:
+                return super.onKeyUp(keyCode, event);
+        }
+    }
+
     // Demonstrates how to iterate through the supported GATT Services/Characteristics.
     // In this sample, we populate the data structure that is bound to the ExpandableListView
     // on the UI.
@@ -176,9 +225,50 @@ public class DeviceControlActivity extends AppCompatActivity {
                 Log.d(TAG,"Found Characteristic: " + gattCharacteristic.getUuid().toString());
                 String uuid = gattCharacteristic.getUuid().toString();
                 if (uuid.contains(GattAttributes.GOPRO_COMMAND_CHARACTERISTIC)){
-                    Log.d(TAG,"Found WunderLINQ Command Characteristic");
+                    Log.d(TAG,"Found GoPro Command Characteristic");
                     characteristic = gattCharacteristic;
-                    updateUIElements();
+                }
+                if (uuid.contains(GattAttributes.GOPRO_COMMANDRESPONSE_CHARACTERISTIC)) {
+                    Log.d(TAG,"Found GoPro Command Response Characteristic");
+                    int charaProp = gattCharacteristic.getProperties();
+                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+                        // If there is an active notification on a characteristic, clear
+                        // it first so it doesn't update the data field on the user interface.
+                        if (commandResponseCharacteristic != null) {
+                            mBluetoothLeService.setCharacteristicNotification(
+                                    commandResponseCharacteristic, false);
+                            commandResponseCharacteristic = null;
+                        }
+                        BluetoothLeService.readCharacteristic(gattCharacteristic);
+                    }
+                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                        commandResponseCharacteristic = gattCharacteristic;
+                        mBluetoothLeService.setCharacteristicNotification(
+                                gattCharacteristic, true);
+                    }
+                }
+                if (uuid.contains(GattAttributes.GOPRO_QUERY_CHARACTERISTIC)){
+                    Log.d(TAG,"Found GoPro Query Characteristic");
+                    characteristic = gattCharacteristic;
+                }
+                if (uuid.contains(GattAttributes.GOPRO_QUERYRESPONSE_CHARACTERISTIC)) {
+                    Log.d(TAG,"Found GoPro Query Response Characteristic");
+                    int charaProp = gattCharacteristic.getProperties();
+                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+                        // If there is an active notification on a characteristic, clear
+                        // it first so it doesn't update the data field on the user interface.
+                        if (queryResponseCharacteristic != null) {
+                            mBluetoothLeService.setCharacteristicNotification(
+                                    queryResponseCharacteristic, false);
+                            queryResponseCharacteristic = null;
+                        }
+                        BluetoothLeService.readCharacteristic(gattCharacteristic);
+                    }
+                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                        queryResponseCharacteristic = gattCharacteristic;
+                        mBluetoothLeService.setCharacteristicNotification(
+                                gattCharacteristic, true);
+                    }
                 }
             }
         }
@@ -207,7 +297,8 @@ public class DeviceControlActivity extends AppCompatActivity {
         public void onClick(View v) {
             switch(v.getId()) {
                 case R.id.shutterBtn:
-                    //
+                    //Toggle Shutter
+                    //TODO
                     break;
             }
         }
