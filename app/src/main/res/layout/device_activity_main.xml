@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="4dp"
+    android:background="?attr/backgroundColor"
     tools:context="com.blackboxembedded.wunderlinqgopro.DeviceScanActivity">
 
     <ListView android:id="@+id/listview"
@@ -19,8 +20,8 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:text="@string/scanBtn"
-        android:background="@drawable/dimmable_button_black"
-        android:textColor="@android:color/white"
+        android:background="?attr/buttonColor"
+        android:textColor="?attr/primaryTextColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>

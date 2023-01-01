@@ -30,9 +30,15 @@ public class GattAttributes {
     /**
      * GoPro Service and Characteristics
      */
-    public static final String GOPRO_SERVICE = "0000FEA6-0000-1000-8000-00805f9b34fb";
-    public static final String WUNDERLINQ_MESSAGE_CHARACTERISTIC = "00000003-0000-1000-8000-00805f9b34fb";
-    public static final String WUNDERLINQ_COMMAND_CHARACTERISTIC = "00000004-0000-1000-8000-00805f9b34fb";
+    public static final String GOPRO_CONTROL_SERVICE = "0000FEA6-0000-1000-8000-00805f9b34fb";
+    public static final String GOPRO_COMMAND_CHARACTERISTIC = "B5F90072-AA8D-11E3-9046-0002A5D5C51B";
+    public static final String GOPRO_COMMANDRESPONSE_CHARACTERISTIC = "B5F90073-AA8D-11E3-9046-0002A5D5C51B";
+    public static final String GOPRO_QUERY_CHARACTERISTIC = "B5F90076-AA8D-11E3-9046-0002A5D5C51B";
+    public static final String GOPRO_QUERYRESPONSE_CHARACTERISTIC = "B5F90077-AA8D-11E3-9046-0002A5D5C51B";
+    public static final String GOPRO_WIFI_SERVICE = "b5f90001-aa8d-11e3-9046-0002a5d5c51b";
+    public static final String GOPRO_WIFI_SSID_CHARACTERISTIC = "B5F90002-AA8D-11E3-9046-0002A5D5C51B";
+    public static final String GOPRO_WIFI_PASSWORD_CHARACTERISTIC = "B5F90003-AA8D-11E3-9046-0002A5D5C51B";
+    public static final String GOPRO_MGMT_SERVICE = "b5f90090-aa8d-11e3-9046-0002a5d5c51b";
 
     /**
      * Descriptor UUID's
@@ -59,10 +65,16 @@ public class GattAttributes {
     public static final String DEVICE_INFORMATION_SERVICE = "0000180a-0000-1000-8000-00805f9b34fb";
 
     static {
-        // WunderLINQ
-        attributesUUID.put(UUIDDatabase.UUID_GOPRO_SERVICE, "GoPro Service");
-        attributesUUID.put(UUIDDatabase.UUID_WUNDERLINQ_MESSAGE_CHARACTERISTIC, "WunderLINQ Messages");
-        attributesUUID.put(UUIDDatabase.UUID_WUNDERLINQ_COMMAND_CHARACTERISTIC, "WunderLINQ Commands");
+        // GoPro
+        attributesUUID.put(UUIDDatabase.UUID_GOPRO_WIFI_SERVICE, "GoPro Control Service");
+        attributesUUID.put(UUIDDatabase.UUID_GOPRO_WIFI_SSID_CHARACTERISTIC, "GoPro Wifi SSID Characteristic");
+        attributesUUID.put(UUIDDatabase.UUID_GOPRO_WIFI_PASSWORD_CHARACTERISTIC, "GoPro Wifi Password Characteristic");
+        attributesUUID.put(UUIDDatabase.UUID_GOPRO_MGMT_SERVICE, "GoPro Network Management Service");
+        attributesUUID.put(UUIDDatabase.UUID_GOPRO_CONTROL_SERVICE, "GoPro Control Service");
+        attributesUUID.put(UUIDDatabase.UUID_GOPRO_COMMAND_CHARACTERISTIC, "GoPro Command Characteristic");
+        attributesUUID.put(UUIDDatabase.UUID_GOPRO_COMMANDRESPONSE_CHARACTERISTIC, "GoPro Command Response Characteristic");
+        attributesUUID.put(UUIDDatabase.UUID_GOPRO_QUERY_CHARACTERISTIC, "GoPro Query Characteristic");
+        attributesUUID.put(UUIDDatabase.UUID_GOPRO_QUERYRESPONSE_CHARACTERISTIC, "GoPro Query Response Characteristic");
 
         // Descriptors
         attributesUUID.put(UUIDDatabase.UUID_CHARACTERISTIC_EXTENDED_PROPERTIES, "Characteristic Extended Properties");

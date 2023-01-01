@@ -4,16 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/backgroundColor"
     tools:context=".DeviceControlActivity">
-
 
     <Button
         android:id="@+id/shutterBtn"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:text=""
-        android:background="@drawable/dimmable_button_black"
-        android:textColor="@android:color/white"
+        android:background="?attr/buttonColor"
+        android:textColor="?attr/primaryTextColor"
         android:textSize="16sp"
         android:textStyle="bold"
         android:layout_marginBottom="16dp"

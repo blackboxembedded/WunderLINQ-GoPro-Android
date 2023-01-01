@@ -4,7 +4,7 @@
     <string name="scanBtn">Scan</string>
     <string name="connected">Connected</string>
     <string name="disconnected">Disconnected</string>
-    <string name="title_devices">WunderLINQ Scan</string>
+    <string name="title_devices">GoPros</string>
     <string name="error_bluetooth_not_supported">Bluetooth not supported.</string>
     <string name="unknown_device">Unknown device</string>
     <string name="location_alert_title">Location Request</string>

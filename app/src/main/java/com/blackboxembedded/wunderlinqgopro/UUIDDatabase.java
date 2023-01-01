@@ -27,12 +27,24 @@ public class UUIDDatabase {
     /**
      * GoPro related UUID
      */
-    public static final UUID UUID_GOPRO_SERVICE = UUID
-            .fromString(GattAttributes.GOPRO_SERVICE);
-    public static final UUID UUID_WUNDERLINQ_MESSAGE_CHARACTERISTIC = UUID
-            .fromString(GattAttributes.WUNDERLINQ_MESSAGE_CHARACTERISTIC);
-    public final static UUID UUID_WUNDERLINQ_COMMAND_CHARACTERISTIC = UUID
-            .fromString(GattAttributes.WUNDERLINQ_COMMAND_CHARACTERISTIC);
+    public static final UUID UUID_GOPRO_WIFI_SERVICE = UUID
+            .fromString(GattAttributes.GOPRO_WIFI_SERVICE);
+    public static final UUID UUID_GOPRO_WIFI_SSID_CHARACTERISTIC = UUID
+            .fromString(GattAttributes.GOPRO_WIFI_SSID_CHARACTERISTIC);
+    public final static UUID UUID_GOPRO_WIFI_PASSWORD_CHARACTERISTIC = UUID
+            .fromString(GattAttributes.GOPRO_WIFI_PASSWORD_CHARACTERISTIC);
+    public static final UUID UUID_GOPRO_MGMT_SERVICE = UUID
+            .fromString(GattAttributes.GOPRO_MGMT_SERVICE);
+    public static final UUID UUID_GOPRO_CONTROL_SERVICE = UUID
+            .fromString(GattAttributes.GOPRO_CONTROL_SERVICE);
+    public static final UUID UUID_GOPRO_COMMAND_CHARACTERISTIC = UUID
+            .fromString(GattAttributes.GOPRO_COMMAND_CHARACTERISTIC);
+    public final static UUID UUID_GOPRO_COMMANDRESPONSE_CHARACTERISTIC = UUID
+            .fromString(GattAttributes.GOPRO_COMMANDRESPONSE_CHARACTERISTIC);
+    public static final UUID UUID_GOPRO_QUERY_CHARACTERISTIC = UUID
+            .fromString(GattAttributes.GOPRO_QUERY_CHARACTERISTIC);
+    public final static UUID UUID_GOPRO_QUERYRESPONSE_CHARACTERISTIC = UUID
+            .fromString(GattAttributes.GOPRO_QUERYRESPONSE_CHARACTERISTIC);
 
     /**
      * Descriptor UUID

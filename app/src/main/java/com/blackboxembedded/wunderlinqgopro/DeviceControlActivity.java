@@ -97,7 +97,11 @@ public class DeviceControlActivity extends AppCompatActivity {
                 Bundle bd = intent.getExtras();
                 if(bd != null){
                     if(bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE) != null) {
-                        if (bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE).contains(GattAttributes.WUNDERLINQ_COMMAND_CHARACTERISTIC)) {
+                        if (bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE).contains(GattAttributes.GOPRO_COMMAND_CHARACTERISTIC)) {
+                            byte[] data = bd.getByteArray(BluetoothLeService.EXTRA_BYTE_VALUE);
+                            String characteristicValue = Utils.ByteArraytoHex(data) + " ";
+                            Log.d(TAG, "UUID: " + bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE) + " DATA: " + characteristicValue);
+                        } else if (bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE).contains(GattAttributes.GOPRO_QUERY_CHARACTERISTIC)) {
                             byte[] data = bd.getByteArray(BluetoothLeService.EXTRA_BYTE_VALUE);
                             String characteristicValue = Utils.ByteArraytoHex(data) + " ";
                             Log.d(TAG, "UUID: " + bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE) + " DATA: " + characteristicValue);
@@ -171,7 +175,7 @@ public class DeviceControlActivity extends AppCompatActivity {
             for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
                 Log.d(TAG,"Found Characteristic: " + gattCharacteristic.getUuid().toString());
                 String uuid = gattCharacteristic.getUuid().toString();
-                if (uuid.contains(GattAttributes.WUNDERLINQ_COMMAND_CHARACTERISTIC)){
+                if (uuid.contains(GattAttributes.GOPRO_COMMAND_CHARACTERISTIC)){
                     Log.d(TAG,"Found WunderLINQ Command Characteristic");
                     characteristic = gattCharacteristic;
                     updateUIElements();

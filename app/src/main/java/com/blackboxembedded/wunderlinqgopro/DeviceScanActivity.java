@@ -45,6 +45,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -81,7 +82,10 @@ public class DeviceScanActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG,"onCreate:");
+
+        // Keep screen on
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         setContentView(R.layout.device_activity_main);
         listView = findViewById(R.id.listview);
         listView.setClickable(true);
@@ -229,7 +233,7 @@ public class DeviceScanActivity extends AppCompatActivity {
             ParcelUuid parcelUuidMask = new ParcelUuid(UUID.fromString("0000FFFF-0000-0000-0000-000000000000"));
 
             List<ScanFilter> bleScanFilter = new ArrayList<>();
-            ScanFilter.Builder builder = new ScanFilter.Builder().setServiceUuid(new ParcelUuid(UUIDDatabase.UUID_GOPRO_SERVICE), parcelUuidMask);
+            ScanFilter.Builder builder = new ScanFilter.Builder().setServiceUuid(new ParcelUuid(UUIDDatabase.UUID_GOPRO_CONTROL_SERVICE), parcelUuidMask);
             bleScanFilter.add(builder.build());
             if (enable) {
                 // Stops scanning after a pre-defined scan period.
@@ -271,7 +275,7 @@ public class DeviceScanActivity extends AppCompatActivity {
             if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(DeviceScanActivity.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, PERMISSION_REQUEST_BLUETOOTH_CONNECT);
             } else {
-                if (device.getDevice().getName() != null) {
+                if (!mLeDevices.contains(device)) {
                     mLeDevices.add(device);
                 }
             }

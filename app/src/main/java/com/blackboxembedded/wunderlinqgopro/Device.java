@@ -18,7 +18,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 package com.blackboxembedded.wunderlinqgopro;
 
 import android.bluetooth.BluetoothDevice;
-import android.util.Log;
 
 public class Device {
     BluetoothDevice device;
