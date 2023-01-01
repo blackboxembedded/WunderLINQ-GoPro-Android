@@ -101,15 +101,15 @@ public class DeviceControlActivity extends AppCompatActivity {
                 // Show all the supported services and characteristics on the user interface.
                 checkGattServices(mBluetoothLeService.getSupportedGattServices());
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                //Log.d(TAG,"Data Avail");
+                Log.d(TAG,"DATA_AVAILABLE");
                 Bundle bd = intent.getExtras();
                 if(bd != null){
                     if(bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE) != null) {
-                        if (bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE).contains(GattAttributes.GOPRO_COMMAND_CHARACTERISTIC)) {
+                        if (bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE).contains(GattAttributes.GOPRO_COMMANDRESPONSE_CHARACTERISTIC)) {
                             byte[] data = bd.getByteArray(BluetoothLeService.EXTRA_BYTE_VALUE);
                             String characteristicValue = Utils.ByteArraytoHex(data) + " ";
                             Log.d(TAG, "UUID: " + bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE) + " DATA: " + characteristicValue);
-                        } else if (bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE).contains(GattAttributes.GOPRO_QUERY_CHARACTERISTIC)) {
+                        } else if (bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE).contains(GattAttributes.GOPRO_QUERYRESPONSE_CHARACTERISTIC)) {
                             byte[] data = bd.getByteArray(BluetoothLeService.EXTRA_BYTE_VALUE);
                             String characteristicValue = Utils.ByteArraytoHex(data) + " ";
                             Log.d(TAG, "UUID: " + bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE) + " DATA: " + characteristicValue);
@@ -118,7 +118,7 @@ public class DeviceControlActivity extends AppCompatActivity {
                 }
             } else if(BluetoothLeService.ACTION_WRITE_SUCCESS.equals(action)){
                 Log.d(TAG,"Write Success Received");
-                BluetoothLeService.readCharacteristic(characteristic);
+                //BluetoothLeService.readCharacteristic(characteristic);
             }
         }
     };
@@ -168,6 +168,9 @@ public class DeviceControlActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (mBluetoothLeService != null) {
+            mBluetoothLeService.disconnect();
+        }
         unbindService(mServiceConnection);
         mBluetoothLeService = null;
     }
@@ -209,10 +212,32 @@ public class DeviceControlActivity extends AppCompatActivity {
                 return super.onKeyUp(keyCode, event);
         }
     }
+    private View.OnClickListener mClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch(v.getId()) {
+                case R.id.shutterBtn:
+                    //Toggle Shutter
+                    //TODO
+                    break;
+            }
+        }
+    };
 
-    // Demonstrates how to iterate through the supported GATT Services/Characteristics.
-    // In this sample, we populate the data structure that is bound to the ExpandableListView
-    // on the UI.
+    private void setCommand(byte[] command){
+        byte[] fullcommand = new byte[command.length + 1];
+        System.arraycopy(new byte[]{(byte) command.length}, 0, fullcommand, 0, 1);
+        System.arraycopy(command, 0, fullcommand, 1, command.length);
+        queryCharacteristic.setValue(fullcommand);
+        BluetoothLeService.writeCharacteristic(queryCharacteristic);
+    }
+
+    private void requestCameraStatus(){
+        byte[] command = {0x05,0x13,0x08,0x11,0x37,0x60};
+        queryCharacteristic.setValue(command);
+        BluetoothLeService.writeCharacteristic(queryCharacteristic);
+    }
+
     private void checkGattServices(List<BluetoothGattService> gattServices) {
         if (gattServices == null) return;
         // Loops through available GATT Services.
@@ -226,7 +251,7 @@ public class DeviceControlActivity extends AppCompatActivity {
                 String uuid = gattCharacteristic.getUuid().toString();
                 if (uuid.contains(GattAttributes.GOPRO_COMMAND_CHARACTERISTIC)){
                     Log.d(TAG,"Found GoPro Command Characteristic");
-                    characteristic = gattCharacteristic;
+                    commandCharacteristic = gattCharacteristic;
                 }
                 if (uuid.contains(GattAttributes.GOPRO_COMMANDRESPONSE_CHARACTERISTIC)) {
                     Log.d(TAG,"Found GoPro Command Response Characteristic");
@@ -249,7 +274,7 @@ public class DeviceControlActivity extends AppCompatActivity {
                 }
                 if (uuid.contains(GattAttributes.GOPRO_QUERY_CHARACTERISTIC)){
                     Log.d(TAG,"Found GoPro Query Characteristic");
-                    characteristic = gattCharacteristic;
+                    queryCharacteristic = gattCharacteristic;
                 }
                 if (uuid.contains(GattAttributes.GOPRO_QUERYRESPONSE_CHARACTERISTIC)) {
                     Log.d(TAG,"Found GoPro Query Response Characteristic");
@@ -272,6 +297,9 @@ public class DeviceControlActivity extends AppCompatActivity {
                 }
             }
         }
+        if (queryCharacteristic != null) {
+            requestCameraStatus();
+        }
     }
 
     private static IntentFilter makeGattUpdateIntentFilter() {
@@ -292,15 +320,5 @@ public class DeviceControlActivity extends AppCompatActivity {
         }
     }
 
-    private View.OnClickListener mClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            switch(v.getId()) {
-                case R.id.shutterBtn:
-                    //Toggle Shutter
-                    //TODO
-                    break;
-            }
-        }
-    };
+
 }
