@@ -49,33 +49,26 @@ public class DeviceControlActivity extends AppCompatActivity {
     private String mDeviceAddress;
     private BluetoothLeService mBluetoothLeService;
 
-    private boolean mConnected = false;
-
-    private BluetoothGattCharacteristic characteristic;
-    private static BluetoothGattCharacteristic commandCharacteristic;
-    public static BluetoothGattCharacteristic commandResponseCharacteristic;
-    private static BluetoothGattCharacteristic queryCharacteristic;
-    public static BluetoothGattCharacteristic queryResponseCharacteristic;
-
     private Button shutterBtn;
-
 
     // Code to manage Service lifecycle.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
+            Log.d(TAG, "onServiceConnected()");
             mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
             if (!mBluetoothLeService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
                 finish();
             }
             // Automatically connects to the device upon successful start-up initialization.
-            mBluetoothLeService.connect(mDeviceAddress);
+            mBluetoothLeService.connect(mDeviceAddress, mDeviceName);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
+            Log.d(TAG, "onServiceDisconnected()");
             mBluetoothLeService = null;
         }
     };
@@ -91,15 +84,11 @@ public class DeviceControlActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
-                mConnected = true;
-                invalidateOptionsMenu();
+                updateUIElements();
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                mConnected = false;
-                invalidateOptionsMenu();
                 updateUIElements();
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                // Show all the supported services and characteristics on the user interface.
-                checkGattServices(mBluetoothLeService.getSupportedGattServices());
+
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 Log.d(TAG,"DATA_AVAILABLE");
                 Bundle bd = intent.getExtras();
@@ -118,7 +107,6 @@ public class DeviceControlActivity extends AppCompatActivity {
                 }
             } else if(BluetoothLeService.ACTION_WRITE_SUCCESS.equals(action)){
                 Log.d(TAG,"Write Success Received");
-                //BluetoothLeService.readCharacteristic(characteristic);
             }
         }
     };
@@ -141,7 +129,7 @@ public class DeviceControlActivity extends AppCompatActivity {
         shutterBtn = (Button) findViewById(R.id.shutterBtn);
         shutterBtn.setOnClickListener(mClickListener);
 
-        shutterBtn.setVisibility(View.INVISIBLE);
+        //shutterBtn.setVisibility(View.INVISIBLE);
 
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
@@ -150,12 +138,10 @@ public class DeviceControlActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        Log.d(TAG, "In onResume");
         super.onResume();
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
         if (mBluetoothLeService != null) {
-            final boolean result = mBluetoothLeService.connect(mDeviceAddress);
-            Log.d(TAG, "Connect request result=" + result);
+            mBluetoothLeService.connect(mDeviceAddress, mDeviceName);
         }
     }
 
@@ -219,88 +205,14 @@ public class DeviceControlActivity extends AppCompatActivity {
                 case R.id.shutterBtn:
                     //Toggle Shutter
                     //TODO
+                    //mBluetoothLeService.requestCameraStatus();
+
+                    byte[] command = {0x01, 0x01, 0x01};
+                    mBluetoothLeService.setCommand(command);
                     break;
             }
         }
     };
-
-    private void setCommand(byte[] command){
-        byte[] fullcommand = new byte[command.length + 1];
-        System.arraycopy(new byte[]{(byte) command.length}, 0, fullcommand, 0, 1);
-        System.arraycopy(command, 0, fullcommand, 1, command.length);
-        queryCharacteristic.setValue(fullcommand);
-        BluetoothLeService.writeCharacteristic(queryCharacteristic);
-    }
-
-    private void requestCameraStatus(){
-        byte[] command = {0x05,0x13,0x08,0x11,0x37,0x60};
-        queryCharacteristic.setValue(command);
-        BluetoothLeService.writeCharacteristic(queryCharacteristic);
-    }
-
-    private void checkGattServices(List<BluetoothGattService> gattServices) {
-        if (gattServices == null) return;
-        // Loops through available GATT Services.
-        for (BluetoothGattService gattService : gattServices) {
-            List<BluetoothGattCharacteristic> gattCharacteristics =
-                    gattService.getCharacteristics();
-            Log.d(TAG,"Found Service: " + gattService.getUuid().toString());
-            // Loops through available Characteristics.
-            for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
-                Log.d(TAG,"Found Characteristic: " + gattCharacteristic.getUuid().toString());
-                String uuid = gattCharacteristic.getUuid().toString();
-                if (uuid.contains(GattAttributes.GOPRO_COMMAND_CHARACTERISTIC)){
-                    Log.d(TAG,"Found GoPro Command Characteristic");
-                    commandCharacteristic = gattCharacteristic;
-                }
-                if (uuid.contains(GattAttributes.GOPRO_COMMANDRESPONSE_CHARACTERISTIC)) {
-                    Log.d(TAG,"Found GoPro Command Response Characteristic");
-                    int charaProp = gattCharacteristic.getProperties();
-                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
-                        // If there is an active notification on a characteristic, clear
-                        // it first so it doesn't update the data field on the user interface.
-                        if (commandResponseCharacteristic != null) {
-                            mBluetoothLeService.setCharacteristicNotification(
-                                    commandResponseCharacteristic, false);
-                            commandResponseCharacteristic = null;
-                        }
-                        BluetoothLeService.readCharacteristic(gattCharacteristic);
-                    }
-                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                        commandResponseCharacteristic = gattCharacteristic;
-                        mBluetoothLeService.setCharacteristicNotification(
-                                gattCharacteristic, true);
-                    }
-                }
-                if (uuid.contains(GattAttributes.GOPRO_QUERY_CHARACTERISTIC)){
-                    Log.d(TAG,"Found GoPro Query Characteristic");
-                    queryCharacteristic = gattCharacteristic;
-                }
-                if (uuid.contains(GattAttributes.GOPRO_QUERYRESPONSE_CHARACTERISTIC)) {
-                    Log.d(TAG,"Found GoPro Query Response Characteristic");
-                    int charaProp = gattCharacteristic.getProperties();
-                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
-                        // If there is an active notification on a characteristic, clear
-                        // it first so it doesn't update the data field on the user interface.
-                        if (queryResponseCharacteristic != null) {
-                            mBluetoothLeService.setCharacteristicNotification(
-                                    queryResponseCharacteristic, false);
-                            queryResponseCharacteristic = null;
-                        }
-                        BluetoothLeService.readCharacteristic(gattCharacteristic);
-                    }
-                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                        queryResponseCharacteristic = gattCharacteristic;
-                        mBluetoothLeService.setCharacteristicNotification(
-                                gattCharacteristic, true);
-                    }
-                }
-            }
-        }
-        if (queryCharacteristic != null) {
-            requestCameraStatus();
-        }
-    }
 
     private static IntentFilter makeGattUpdateIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
@@ -313,12 +225,7 @@ public class DeviceControlActivity extends AppCompatActivity {
     }
 
     private void updateUIElements(){
-        if(characteristic != null){
-            shutterBtn.setEnabled(true);
-        } else {
-            shutterBtn.setEnabled(false);
-        }
+       //TODO
     }
-
 
 }
