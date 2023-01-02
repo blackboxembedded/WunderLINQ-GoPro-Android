@@ -17,13 +17,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
-    <Button
+    <com.google.android.material.button.MaterialButton
+        style="@style/Widget.MaterialComponents.Button"
         android:id="@+id/scanButton"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:text="@string/scanBtn"
-        android:background="?attr/buttonColor"
-        android:textColor="?attr/primaryTextColor"
+        android:text=""
+        app:backgroundTint="?attr/colorAccent"
+        android:textColor="?attr/buttonTextColor"
+        android:layout_marginBottom="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>

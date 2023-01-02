@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -91,7 +92,8 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
                 finish();
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
 
-            } else if (BluetoothLeService.ACTION_GATT_CHARS_DISCOVERED.equals(action)) {
+            } else if (BluetoothLeService.ACTION_NOTFICATION_ENABLED.equals(action)) {
+                Log.d(TAG,"ACTION_NOTFICATION_ENABLED");
                 mBluetoothLeService.requestCameraStatus();
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 Log.d(TAG,"DATA_AVAILABLE");
@@ -151,8 +153,8 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
         modeImageView = findViewById(R.id.modeIV);
         shutterButton = findViewById(R.id.shutterBtn);
         shutterButton.setOnClickListener(mClickListener);
-        //modeImageView.setImageResource(0);
-        //shutterButton.setVisibility(View.INVISIBLE);
+        shutterButton.setVisibility(View.INVISIBLE);
+
         gestureDetector = new GestureDetectorListener(this) {
 
             @Override
@@ -205,6 +207,13 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
         }
         unbindService(mServiceConnection);
         mBluetoothLeService = null;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Log.d(TAG, "In onConfigChange");
+        updateUIElements();
     }
 
     @Override
@@ -272,6 +281,7 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_CHARS_DISCOVERED);
+        intentFilter.addAction(BluetoothLeService.ACTION_NOTFICATION_ENABLED);
         intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
         intentFilter.addAction(BluetoothLeService.ACTION_WRITE_SUCCESS);
         return intentFilter;
@@ -344,9 +354,9 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
                     //Timelapse
                     modeImageView.setImageResource(R.drawable.timelapse);
                     if (cameraStatus.busy){
-                        shutterButton.setText(R.string.task_title_stop_record);
+                        shutterButton.setText(R.string.task_title_stop_timelapse);
                     } else {
-                        shutterButton.setText(R.string.task_title_start_record);
+                        shutterButton.setText(R.string.task_title_start_timelapse);
                     }
                     break;
                 default:
@@ -357,7 +367,7 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
             shutterButton.setVisibility(View.VISIBLE);
         } else {
             modeImageView.setImageResource(0);
-            //shutterButton.setVisibility(View.INVISIBLE);
+            shutterButton.setVisibility(View.INVISIBLE);
             mBluetoothLeService.requestCameraStatus();
         }
     }

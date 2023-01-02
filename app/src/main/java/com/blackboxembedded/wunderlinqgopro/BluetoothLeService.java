@@ -106,11 +106,8 @@ public class BluetoothLeService extends Service {
             "android.bluetooth.device.action.ACTION_WRITE_SUCCESS";
     private final static String ACTION_GATT_DISCONNECTING =
             "com.blackboxembedded.bluetooth.le.ACTION_GATT_DISCONNECTING";
-    private final static String ACTION_PAIRING_REQUEST =
-            "com.blackboxembedded.bluetooth.le.PAIRING_REQUEST";
-    public final static String ACTION_ACCSTATUS_AVAILABLE =
-            "com.blackboxembedded.bluetooth.le.ACTION_ACCSTATUS_AVAILABLE";
-
+    public final static String ACTION_NOTFICATION_ENABLED =
+            "com.blackboxembedded.bluetooth.le.ACTION_NOTFICATION_ENABLED";
     public static final String EXTRA_BYTE_VALUE = "com.blackboxembedded.wunderlinq.backgroundservices." +
             "EXTRA_BYTE_VALUE";
     public static final String EXTRA_BYTE_UUID_VALUE = "com.blackboxembedded.wunderlinq.backgroundservices." +
@@ -204,7 +201,6 @@ public class BluetoothLeService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "onDestroy()");
         // The service is no longer used and is being destroyed
     }
 
@@ -214,7 +210,6 @@ public class BluetoothLeService extends Service {
      * @return Return true if the initialization is successful.
      */
     public boolean initialize() {
-        Log.d(TAG, "initialize()");
         if (mBluetoothManager == null) {
             mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
             if (mBluetoothManager == null) {
@@ -300,12 +295,10 @@ public class BluetoothLeService extends Service {
         @Override
         public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor,
                                      int status) {
-            Log.d(TAG, "onDescriptorRead()");
         }
 
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, final BluetoothGattDescriptor descriptor, final int status) {
-            Log.d(TAG, "onDescriptorWrite()");
             // Do some checks first
             final BluetoothGattCharacteristic parentCharacteristic = descriptor.getCharacteristic();
             if(status!= BluetoothGatt.GATT_SUCCESS) {
@@ -320,11 +313,9 @@ public class BluetoothLeService extends Service {
                     if (value != null) {
                         if (value[0] != 0) {
                             // Notify set to on, add it to the set of notifying characteristics
-                            Log.d(TAG, "onDescriptorWrite() - add");
                             notifyingCharacteristics.add(parentCharacteristic.getUuid());
                         }
                     } else {
-                        Log.d(TAG, "onDescriptorWrite() - remove");
                         // Notify was turned off, so remove it from the set of notifying characteristics
                         notifyingCharacteristics.remove(parentCharacteristic.getUuid());
                     }
@@ -333,6 +324,7 @@ public class BluetoothLeService extends Service {
             } else {
             // This was a normal descriptor write....
             }
+            broadcastConnectionUpdate(ACTION_NOTFICATION_ENABLED);
             completedCommand();
         }
 
@@ -380,7 +372,6 @@ public class BluetoothLeService extends Service {
         @Override
         public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
             super.onMtuChanged(gatt, mtu, status);
-
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 Log.d(TAG,"New MTU: " + mtu);
             }
@@ -461,7 +452,6 @@ public class BluetoothLeService extends Service {
      * callback.
      */
     public static void disconnect() {
-        Log.d(TAG,"disconnect called");
         if (mBluetoothAdapter != null || mBluetoothGatt != null) {
             mBluetoothGatt.disconnect();
             String dataLog = "[" + mBluetoothDeviceName + "|" + mBluetoothDeviceAddress + "] " +
@@ -576,7 +566,6 @@ public class BluetoothLeService extends Service {
         boolean result = commandQueue.add(new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG, "writeCharacteristic() - run");
                 if (isConnected()) {
                     characteristic.setWriteType(writeTypeInternal);
                     characteristic.setValue(bytesToWrite);
@@ -627,7 +616,6 @@ public class BluetoothLeService extends Service {
     }
 
     public boolean setNotify(BluetoothGattCharacteristic characteristic, final boolean enable) {
-        Log.d(TAG,"setNotify()");
         // Check if characteristic is valid
         if(characteristic == null) {
             Log.e(TAG, "ERROR: Characteristic is 'null', ignoring setNotify request");
@@ -658,7 +646,6 @@ public class BluetoothLeService extends Service {
         boolean result = commandQueue.add(new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG,"setNotify() - run");
                 // First set notification for Gatt object
                 if(!mBluetoothGatt.setCharacteristicNotification(descriptor.getCharacteristic(), enable)) {
                     Log.e(TAG, String.format("ERROR: setCharacteristicNotification failed for descriptor: %s", descriptor.getUuid()));

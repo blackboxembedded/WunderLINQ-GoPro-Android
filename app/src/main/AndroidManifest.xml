@@ -33,7 +33,8 @@
                     android:scheme="wunderlinqgp" />
             </intent-filter>
         </activity>
-        <activity android:name=".DeviceControlActivity">
+        <activity android:name=".DeviceControlActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|fontScale|density">
         </activity>
         <service android:name=".BluetoothLeService" android:enabled="true"/>
     </application>
