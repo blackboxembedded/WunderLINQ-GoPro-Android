@@ -31,6 +31,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -78,6 +79,7 @@ public class DeviceScanActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_BLUETOOTH_CONNECT = 100;
     private static final int PERMISSION_REQUEST_BLUETOOTH_SCAN = 101;
     private static final int PERMISSION_REQUEST_FINE_LOCATION = 102;
+    private static final int SETTINGS_CHECK = 10;
 
     ListView listView;
     Button scanButton;
@@ -178,6 +180,9 @@ public class DeviceScanActivity extends AppCompatActivity {
             listView.setAdapter(mLeDeviceListAdapter);
             scanLeDevice(true);
         }
+
+        int highlightColor = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this).getInt("prefHighlightColor", R.color.colorAccent);
+        listView.setSelector(new ColorDrawable(highlightColor));
     }
 
     @Override
@@ -186,6 +191,9 @@ public class DeviceScanActivity extends AppCompatActivity {
         if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
             finish();
             return;
+        } else if (requestCode == SETTINGS_CHECK) {
+            int highlightColor = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this).getInt("prefHighlightColor", R.color.colorAccent);
+            listView.setSelector(new ColorDrawable(highlightColor));
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -210,7 +218,8 @@ public class DeviceScanActivity extends AppCompatActivity {
         switch(item.getItemId()) {
             case R.id.menu_settings:
                 //Launch Settings
-                //TODO
+                Intent settingsIntent = new Intent(this, SettingsActivity.class);
+                startActivityForResult(settingsIntent, SETTINGS_CHECK);
                 return true;
         }
         return super.onOptionsItemSelected(item);

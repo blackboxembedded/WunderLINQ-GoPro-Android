@@ -19,5 +19,10 @@
     <string name="location_alert_body">Location Permissions are required for Bluetooth scanning</string>
     <string name="negative_alert_title">Location Request Denied</string>
     <string name="negative_location_alert_body">Location Permissions are required for Bluetooth scanning</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <!-- Preference Titles -->
+    <string name="ui_title">User Interface</string>
+
 
 </resources>

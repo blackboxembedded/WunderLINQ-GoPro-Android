@@ -23,12 +23,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -54,6 +57,8 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
     private Button shutterButton;
 
     private GestureDetectorListener gestureDetector;
+
+    private SharedPreferences sharedPrefs;
 
     // Code to manage Service lifecycle.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -178,6 +183,7 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
             }
         };
         view.setOnTouchListener(this);
+        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
