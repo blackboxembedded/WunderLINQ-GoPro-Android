@@ -17,13 +17,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 package com.blackboxembedded.wunderlinqgopro;
 
-import android.Manifest;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
+import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_INDICATE;
+import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+
 import android.app.Service;
-import android.app.TaskStackBuilder;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -41,7 +38,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
-import androidx.core.app.NotificationCompat;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -57,6 +53,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * hosted on a WunderLINQ Bluetooth LE device.
  */
 public class BluetoothLeService extends Service {
+
+    List<UUID> notifyingCharacteristics = new ArrayList<>();
+
 
     private final static String TAG = "BLE";
 
@@ -77,13 +76,10 @@ public class BluetoothLeService extends Service {
         SIGNED
     }
 
-    private static BluetoothGattCharacteristic mNotifyCharacteristic;
-    public static BluetoothGattCharacteristic gattCommandCharacteristic;
-    public static BluetoothGattCharacteristic gattHWCharacteristic;
     private static BluetoothGattCharacteristic commandCharacteristic;
-    public static BluetoothGattCharacteristic commandResponseCharacteristic;
+    private static BluetoothGattCharacteristic commandResponseCharacteristic;
     private static BluetoothGattCharacteristic queryCharacteristic;
-    public static BluetoothGattCharacteristic queryResponseCharacteristic;
+    private static BluetoothGattCharacteristic queryResponseCharacteristic;
 
     /**
      * GATT Status constants
@@ -96,6 +92,8 @@ public class BluetoothLeService extends Service {
             "com.blackboxembedded.bluetooth.le.ACTION_GATT_DISCONNECTED";
     public final static String ACTION_GATT_SERVICES_DISCOVERED =
             "com.blackboxembedded.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
+    public final static String ACTION_GATT_CHARS_DISCOVERED =
+            "com.blackboxembedded.bluetooth.le.ACTION_GATT_CHARS_DISCOVERED";
     public final static String ACTION_DATA_AVAILABLE =
             "com.blackboxembedded.bluetooth.le.ACTION_DATA_AVAILABLE";
     public final static String ACTION_GATT_CHARACTERISTIC_ERROR =
@@ -127,20 +125,11 @@ public class BluetoothLeService extends Service {
     public static final int STATE_DISCONNECTING = 4;
     private static final int STATE_BONDED = 5;
 
-    public static int connectedType = 0;
-
     /**
      * BluetoothAdapter for handling connections
      */
     public static BluetoothAdapter mBluetoothAdapter;
     public static BluetoothGatt mBluetoothGatt;
-
-    /**
-     * Disable/enable notification
-     */
-    public static ArrayList<BluetoothGattCharacteristic> mEnabledCharacteristics = new ArrayList<>();
-
-    public static boolean mDisableNotificationFlag = false;
 
     public static int mConnectionState = STATE_DISCONNECTED;
     /**
@@ -175,7 +164,7 @@ public class BluetoothLeService extends Service {
 
     @Override
     public void onCreate() {
-        Log.d(TAG, "onCreate");
+        Log.d(TAG, "onCreate()");
         // The service is being created
         // Initializing the service
         if (!initialize()) {
@@ -186,13 +175,13 @@ public class BluetoothLeService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // The service is starting, due to a call to startService()
-        Log.d(TAG, "onStartCommand");
+        Log.d(TAG, "onStartCommand()");
         return mStartMode;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(TAG, "onBind");
+        Log.d(TAG, "onBind()");
         // A client is binding to the service with bindService()
         mBound = true;
         return mBinder;
@@ -200,7 +189,7 @@ public class BluetoothLeService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.d(TAG, "onUnbind");
+        Log.d(TAG, "onUnbind()");
         // All clients have unbound with unbindService()
         mBound = false;
         return mAllowRebind;
@@ -208,14 +197,14 @@ public class BluetoothLeService extends Service {
 
     @Override
     public void onRebind(Intent intent) {
-        Log.d(TAG, "onRebind");
+        Log.d(TAG, "onRebind()");
         // A client is binding to the service with bindService(),
         // after onUnbind() has already been called
     }
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "onDestroy");
+        Log.d(TAG, "onDestroy()");
         // The service is no longer used and is being destroyed
     }
 
@@ -225,9 +214,7 @@ public class BluetoothLeService extends Service {
      * @return Return true if the initialization is successful.
      */
     public boolean initialize() {
-        // For API level 18 and above, get a reference to BluetoothAdapter
-        // through
-        // BluetoothManager.
+        Log.d(TAG, "initialize()");
         if (mBluetoothManager == null) {
             mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
             if (mBluetoothManager == null) {
@@ -311,33 +298,42 @@ public class BluetoothLeService extends Service {
         }
 
         @Override
-        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor,
-                                      int status) {
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                Intent intent = new Intent(ACTION_WRITE_SUCCESS);
-                sendBroadcast(intent);
-                if (descriptor.getValue() != null)
-                    addRemoveData(descriptor);
-                if (mDisableNotificationFlag) {
-                    disableAllEnabledCharacteristics();
-                }
-            } else if (status == BluetoothGatt.GATT_INSUFFICIENT_AUTHENTICATION
-                    || status == BluetoothGatt.GATT_INSUFFICIENT_ENCRYPTION) {
-                bondDevice();
-                Intent intent = new Intent(ACTION_WRITE_FAILED);
-                sendBroadcast(intent);
-            } else {
-                mDisableNotificationFlag = false;
-                Intent intent = new Intent(ACTION_WRITE_FAILED);
-                sendBroadcast(intent);
-            }
-        }
-
-
-        @Override
         public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor,
                                      int status) {
-            Log.d(TAG, "onDescriptorRead");
+            Log.d(TAG, "onDescriptorRead()");
+        }
+
+        @Override
+        public void onDescriptorWrite(BluetoothGatt gatt, final BluetoothGattDescriptor descriptor, final int status) {
+            Log.d(TAG, "onDescriptorWrite()");
+            // Do some checks first
+            final BluetoothGattCharacteristic parentCharacteristic = descriptor.getCharacteristic();
+            if(status!= BluetoothGatt.GATT_SUCCESS) {
+                Log.e(TAG, String.format("ERROR: Write descriptor failed characteristic: %s", parentCharacteristic.getUuid()));
+            }
+
+            // Check if this was the Client Configuration Descriptor
+            if(descriptor.getUuid().equals(UUID.fromString(GattAttributes.CLIENT_CHARACTERISTIC_CONFIG))) {
+                if(status==BluetoothGatt.GATT_SUCCESS) {
+                    // Check if we were turning notify on or off
+                    byte[] value = descriptor.getValue();
+                    if (value != null) {
+                        if (value[0] != 0) {
+                            // Notify set to on, add it to the set of notifying characteristics
+                            Log.d(TAG, "onDescriptorWrite() - add");
+                            notifyingCharacteristics.add(parentCharacteristic.getUuid());
+                        }
+                    } else {
+                        Log.d(TAG, "onDescriptorWrite() - remove");
+                        // Notify was turned off, so remove it from the set of notifying characteristics
+                        notifyingCharacteristics.remove(parentCharacteristic.getUuid());
+                    }
+                }
+                // This was a setNotify operation
+            } else {
+            // This was a normal descriptor write....
+            }
+            completedCommand();
         }
 
         @Override
@@ -580,6 +576,7 @@ public class BluetoothLeService extends Service {
         boolean result = commandQueue.add(new Runnable() {
             @Override
             public void run() {
+                Log.d(TAG, "writeCharacteristic() - run");
                 if (isConnected()) {
                     characteristic.setWriteType(writeTypeInternal);
                     characteristic.setValue(bytesToWrite);
@@ -587,7 +584,7 @@ public class BluetoothLeService extends Service {
                         Log.d(TAG, String.format("writeCharacteristic failed for characteristic: %s", characteristic.getUuid()));
                         completedCommand();
                     } else {
-                        //Log.d(TAG, String.format("Writing <%s> to characteristic <%s>", Utils.ByteArraytoHex(bytesToWrite), characteristic.getUuid()));
+                        Log.d(TAG, String.format("Writing <%s> to characteristic <%s>", Utils.ByteArraytoHex(bytesToWrite), characteristic.getUuid()));
                         nrTries++;
                     }
                 } else {
@@ -602,46 +599,6 @@ public class BluetoothLeService extends Service {
             Log.d(TAG, "Could not enqueue write characteristic command");
         }
         return result;
-    }
-
-    /**
-     * Enables or disables notification on a give characteristic.
-     *
-     * @param characteristic Characteristic to act on.
-     * @param enabled        If true, enable notification. False otherwise.
-     */
-    public static void setCharacteristicNotification(
-            BluetoothGattCharacteristic characteristic, boolean enabled) {
-        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
-            return;
-        }
-        if (characteristic.getDescriptor(UUID
-                .fromString(GattAttributes.CLIENT_CHARACTERISTIC_CONFIG)) != null) {
-            if (enabled) {
-                BluetoothGattDescriptor descriptor = characteristic
-                        .getDescriptor(UUID
-                                .fromString(GattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
-                descriptor
-                        .setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                mBluetoothGatt.writeDescriptor(descriptor);
-
-            } else {
-                BluetoothGattDescriptor descriptor = characteristic
-                        .getDescriptor(UUID
-                                .fromString(GattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
-                descriptor
-                        .setValue(BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
-                mBluetoothGatt.writeDescriptor(descriptor);
-            }
-        }
-        mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
-        if (enabled) {
-            String dataLog = "Start notification request sent";
-            Log.d(TAG, dataLog);
-        } else {
-            String dataLog = "Stop notification request sent";
-            Log.d(TAG, dataLog);
-        }
     }
 
     /**
@@ -669,51 +626,71 @@ public class BluetoothLeService extends Service {
         }
     }
 
-    public static void addRemoveData(BluetoothGattDescriptor descriptor) {
-        switch (descriptor.getValue()[0]) {
-            case 0:
-                //Disabled notification and indication
-                removeEnabledCharacteristic(descriptor.getCharacteristic());
-                Log.d(TAG,"Removed characteristic");
-                break;
-            case 1:
-                //Enabled notification
-                Log.d(TAG,"Added notify characteristic");
-                addEnabledCharacteristic(descriptor.getCharacteristic());
-                break;
-            case 2:
-                //Enabled indication
-                Log.d(TAG,"Added indicate characteristic");
-                addEnabledCharacteristic(descriptor.getCharacteristic());
-                break;
+    public boolean setNotify(BluetoothGattCharacteristic characteristic, final boolean enable) {
+        Log.d(TAG,"setNotify()");
+        // Check if characteristic is valid
+        if(characteristic == null) {
+            Log.e(TAG, "ERROR: Characteristic is 'null', ignoring setNotify request");
+            return false;
         }
-    }
 
-    public static void addEnabledCharacteristic(BluetoothGattCharacteristic
-                                                        bluetoothGattCharacteristic) {
-        if (!mEnabledCharacteristics.contains(bluetoothGattCharacteristic))
-            mEnabledCharacteristics.add(bluetoothGattCharacteristic);
-    }
+        // Get the CCC Descriptor for the characteristic
+        final BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID.fromString(GattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
+        if(descriptor == null) {
+            Log.e(TAG, String.format("ERROR: Could not get CCC descriptor for characteristic %s", characteristic.getUuid()));
+            return false;
+        }
 
-    public static void removeEnabledCharacteristic(BluetoothGattCharacteristic
-                                                           bluetoothGattCharacteristic) {
-        if (mEnabledCharacteristics.contains(bluetoothGattCharacteristic))
-            mEnabledCharacteristics.remove(bluetoothGattCharacteristic);
-    }
-
-    public static void disableAllEnabledCharacteristics() {
-        if (mEnabledCharacteristics.size() > 0) {
-            mDisableNotificationFlag = true;
-            BluetoothGattCharacteristic bluetoothGattCharacteristic = mEnabledCharacteristics.
-                    get(0);
-            Log.d(TAG,"Disabling characteristic" + bluetoothGattCharacteristic.getUuid());
-            setCharacteristicNotification(bluetoothGattCharacteristic, false);
+        // Check if characteristic has NOTIFY or INDICATE properties and set the correct byte value to be written
+        byte[] value;
+        int properties = characteristic.getProperties();
+        if ((properties & PROPERTY_NOTIFY) > 0) {
+            value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE;
+        } else if ((properties & PROPERTY_INDICATE) > 0) {
+            value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
         } else {
-            mDisableNotificationFlag = false;
+            Log.e(TAG, String.format("ERROR: Characteristic %s does not have notify or indicate property", characteristic.getUuid()));
+            return false;
         }
+        final byte[] finalValue = enable ? value : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
+
+        // Queue Runnable to turn on/off the notification now that all checks have been passed
+        boolean result = commandQueue.add(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG,"setNotify() - run");
+                // First set notification for Gatt object
+                if(!mBluetoothGatt.setCharacteristicNotification(descriptor.getCharacteristic(), enable)) {
+                    Log.e(TAG, String.format("ERROR: setCharacteristicNotification failed for descriptor: %s", descriptor.getUuid()));
+                }
+
+                // Then write to descriptor
+                descriptor.setValue(finalValue);
+                boolean result;
+                result = mBluetoothGatt.writeDescriptor(descriptor);
+                if(!result) {
+                    Log.e(TAG, String.format("ERROR: writeDescriptor failed for descriptor: %s", descriptor.getUuid()));
+                    completedCommand();
+                } else {
+                    nrTries++;
+                }
+            }
+        });
+
+        if(result) {
+            nextCommand();
+        } else {
+            Log.e(TAG, "ERROR: Could not enqueue write command");
+        }
+
+        return result;
     }
 
-    private static void checkGattServices(List<BluetoothGattService> gattServices) {
+    public boolean isNotifying(BluetoothGattCharacteristic characteristic) {
+        return notifyingCharacteristics.contains(characteristic.getUuid());
+    }
+
+    private void checkGattServices(List<BluetoothGattService> gattServices) {
         List<BluetoothGattCharacteristic> gattCharacteristics;
         if (gattServices == null) return;
         String uuid;
@@ -728,49 +705,27 @@ public class BluetoothLeService extends Service {
                     uuid = gattCharacteristic.getUuid().toString();
                     Log.d(TAG,"Characteristic Found: " + uuid);
                     if (UUID.fromString(GattAttributes.GOPRO_COMMAND_CHARACTERISTIC).equals(gattCharacteristic.getUuid())) {
+                        Log.d(TAG,"GoPro Command Characteristic Found: " + uuid);
                         commandCharacteristic = gattCharacteristic;
-                    } else if (UUID.fromString(GattAttributes.GOPRO_COMMANDRESPONSE_CHARACTERISTIC).equals(gattCharacteristic.getUuid())) {
-                        int charaProp = gattCharacteristic.getProperties();
-                        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
-                            // If there is an active notification on a characteristic, clear
-                            // it first so it doesn't update the data field on the user interface.
-                            if (commandResponseCharacteristic != null) {
-                                setCharacteristicNotification(
-                                        commandResponseCharacteristic, false);
-                                commandResponseCharacteristic = null;
-                            }
-                            readCharacteristic(gattCharacteristic);
-                        }
-                        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                            commandResponseCharacteristic = gattCharacteristic;
-                            setCharacteristicNotification(
-                                    gattCharacteristic, true);
-                        }
+                    }
+                    if (UUID.fromString(GattAttributes.GOPRO_COMMANDRESPONSE_CHARACTERISTIC).equals(gattCharacteristic.getUuid())) {
+                        Log.d(TAG,"GoPro Command/Response Characteristic Found: " + uuid);
                         commandResponseCharacteristic = gattCharacteristic;
-                    } else if (UUID.fromString(GattAttributes.GOPRO_QUERYRESPONSE_CHARACTERISTIC).equals(gattCharacteristic.getUuid())){
+                        setNotify(commandResponseCharacteristic,true);
+                    }
+                    if (UUID.fromString(GattAttributes.GOPRO_QUERY_CHARACTERISTIC).equals(gattCharacteristic.getUuid())){
+                        Log.d(TAG,"GoPro Query Characteristic Found: " + uuid);
                         queryCharacteristic = gattCharacteristic;
-                    } else if (UUID.fromString(GattAttributes.GOPRO_QUERYRESPONSE_CHARACTERISTIC).equals(gattCharacteristic.getUuid())){
-                        int charaProp = gattCharacteristic.getProperties();
-                        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
-                            // If there is an active notification on a characteristic, clear
-                            // it first so it doesn't update the data field on the user interface.
-                            if (queryResponseCharacteristic != null) {
-                                setCharacteristicNotification(
-                                        queryResponseCharacteristic, false);
-                                queryResponseCharacteristic = null;
-                            }
-                            readCharacteristic(gattCharacteristic);
-                        }
-                        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                            queryResponseCharacteristic = gattCharacteristic;
-                            setCharacteristicNotification(
-                                    gattCharacteristic, true);
-                        }
+                    }
+                    if (UUID.fromString(GattAttributes.GOPRO_QUERYRESPONSE_CHARACTERISTIC).equals(gattCharacteristic.getUuid())){
+                        Log.d(TAG,"GoPro Query/Response Characteristic Found: " + uuid);
                         queryResponseCharacteristic = gattCharacteristic;
+                        setNotify(queryResponseCharacteristic,true);
                     }
                 }
             }
         }
+        broadcastConnectionUpdate(ACTION_GATT_CHARS_DISCOVERED);
     }
 
     public static boolean isConnected() {
@@ -782,6 +737,7 @@ public class BluetoothLeService extends Service {
     }
 
     private static void nextCommand() {
+        Log.d(TAG, "nextCommand() ");
         // If there is still a command being executed then bail out
         if(commandQueueBusy) {
             return;
@@ -839,18 +795,26 @@ public class BluetoothLeService extends Service {
     // GoPro Commands
     public void setCommand(byte[] command){
         if (commandCharacteristic != null) {
-            byte[] fullcommand = new byte[command.length + 1];
-            System.arraycopy(new byte[]{(byte) command.length}, 0, fullcommand, 0, 1);
-            System.arraycopy(command, 0, fullcommand, 1, command.length);
-            Log.d(TAG, Utils.ByteArraytoHex(fullcommand));
-            writeCharacteristic(commandCharacteristic, fullcommand, WriteType.WITH_RESPONSE);
+            if (!isNotifying(commandResponseCharacteristic)) {
+                setNotify(commandResponseCharacteristic,true);
+            } else {
+                byte[] fullcommand = new byte[command.length + 1];
+                System.arraycopy(new byte[]{(byte) command.length}, 0, fullcommand, 0, 1);
+                System.arraycopy(command, 0, fullcommand, 1, command.length);
+                Log.d(TAG, Utils.ByteArraytoHex(fullcommand));
+                writeCharacteristic(commandCharacteristic, fullcommand, WriteType.WITH_RESPONSE);
+            }
         }
     }
 
     public void requestCameraStatus(){
         if (queryCharacteristic != null) {
-            byte[] command = {0x05, 0x13, 0x08, 0x11, 0x37, 0x60};
-            writeCharacteristic(queryCharacteristic, command, WriteType.WITH_RESPONSE);
+            if (!isNotifying(queryResponseCharacteristic)) {
+                setNotify(queryResponseCharacteristic,true);
+            } else {
+                byte[] command = {0x05, 0x13, 0x08, 0x11, 0x37, 0x60};
+                writeCharacteristic(queryCharacteristic, command, WriteType.WITH_RESPONSE);
+            }
         }
     }
 }

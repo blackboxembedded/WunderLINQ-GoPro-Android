@@ -17,8 +17,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 package com.blackboxembedded.wunderlinqgopro;
 
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -32,14 +30,14 @@ import android.os.IBinder;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 
-import java.util.List;
 
-public class DeviceControlActivity extends AppCompatActivity {
+public class DeviceControlActivity extends AppCompatActivity implements View.OnTouchListener  {
     private final static String TAG = DeviceControlActivity.class.getSimpleName();
 
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
@@ -49,7 +47,12 @@ public class DeviceControlActivity extends AppCompatActivity {
     private String mDeviceAddress;
     private BluetoothLeService mBluetoothLeService;
 
-    private Button shutterBtn;
+    private CameraStatus cameraStatus;
+
+    private ImageView modeImageView;
+    private Button shutterButton;
+
+    private GestureDetectorListener gestureDetector;
 
     // Code to manage Service lifecycle.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -84,11 +87,12 @@ public class DeviceControlActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
-                updateUIElements();
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                updateUIElements();
+                finish();
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
 
+            } else if (BluetoothLeService.ACTION_GATT_CHARS_DISCOVERED.equals(action)) {
+                mBluetoothLeService.requestCameraStatus();
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 Log.d(TAG,"DATA_AVAILABLE");
                 Bundle bd = intent.getExtras();
@@ -98,15 +102,33 @@ public class DeviceControlActivity extends AppCompatActivity {
                             byte[] data = bd.getByteArray(BluetoothLeService.EXTRA_BYTE_VALUE);
                             String characteristicValue = Utils.ByteArraytoHex(data) + " ";
                             Log.d(TAG, "UUID: " + bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE) + " DATA: " + characteristicValue);
+                            if(data[2] == 0x00 ){
+                                updateUIElements();
+                            } else {
+                                mBluetoothLeService.requestCameraStatus();
+                            }
                         } else if (bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE).contains(GattAttributes.GOPRO_QUERYRESPONSE_CHARACTERISTIC)) {
                             byte[] data = bd.getByteArray(BluetoothLeService.EXTRA_BYTE_VALUE);
                             String characteristicValue = Utils.ByteArraytoHex(data) + " ";
                             Log.d(TAG, "UUID: " + bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE) + " DATA: " + characteristicValue);
+                            if (data.length > 17) {
+                                cameraStatus = new CameraStatus();
+                                cameraStatus.busy = (data[5] == 0x01);
+                                cameraStatus.mode = data[17];
+                                cameraStatus.previewAvailable = (data[11] == 0x01);
+                                cameraStatus.wifiEnabled = (data[8] == 0x01);
+                            } else {
+                                mBluetoothLeService.requestCameraStatus();
+                            }
                         }
                     }
                 }
+                updateUIElements();
             } else if(BluetoothLeService.ACTION_WRITE_SUCCESS.equals(action)){
                 Log.d(TAG,"Write Success Received");
+                if (cameraStatus == null) {
+                    //mBluetoothLeService.requestCameraStatus();
+                }
             }
         }
     };
@@ -125,11 +147,35 @@ public class DeviceControlActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         getSupportActionBar().setTitle(mDeviceName);
+        View view = findViewById(R.id.controlLayOut);
+        modeImageView = findViewById(R.id.modeIV);
+        shutterButton = findViewById(R.id.shutterBtn);
+        shutterButton.setOnClickListener(mClickListener);
+        //modeImageView.setImageResource(0);
+        //shutterButton.setVisibility(View.INVISIBLE);
+        gestureDetector = new GestureDetectorListener(this) {
 
-        shutterBtn = (Button) findViewById(R.id.shutterBtn);
-        shutterBtn.setOnClickListener(mClickListener);
+            @Override
+            public void onSwipeUp() {
+                upKey();
+            }
 
-        //shutterBtn.setVisibility(View.INVISIBLE);
+            @Override
+            public void onSwipeDown() {
+                downKey();
+            }
+
+            @Override
+            public void onSwipeLeft() {
+                rightKey();
+            }
+
+            @Override
+            public void onSwipeRight() {
+                leftKey();
+            }
+        };
+        view.setOnTouchListener(this);
 
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
@@ -162,30 +208,40 @@ public class DeviceControlActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        gestureDetector.onTouch(v, event);
+        return true;
+    }
+
+    @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_ENTER:
                 //Toggle Shutter
-                //TODO
+                toggleShutter();
                 return true;
             case KeyEvent.KEYCODE_DPAD_UP:
             case KeyEvent.KEYCODE_PLUS:
             case KeyEvent.KEYCODE_NUMPAD_ADD:
                 //Scroll through modes
-                //TODO
+                nextMode();
                 return true;
             case KeyEvent.KEYCODE_DPAD_DOWN:
             case KeyEvent.KEYCODE_MINUS:
             case KeyEvent.KEYCODE_NUMPAD_SUBTRACT:
                 //Scroll through modes
-                //TODO
+                previousMode();
                 return true;
             case KeyEvent.KEYCODE_DPAD_LEFT:
-                finish();
+                leftKey();
                 return true;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
                 //Open Camera Preview
-                //TODO
+                if (cameraStatus != null){
+                    //TODO
+                } else {
+                    mBluetoothLeService.requestCameraStatus();
+                }
                 return true;
             case KeyEvent.KEYCODE_ESCAPE:
                 String wunderLINQApp = "wunderlinq://";
@@ -204,11 +260,7 @@ public class DeviceControlActivity extends AppCompatActivity {
             switch(v.getId()) {
                 case R.id.shutterBtn:
                     //Toggle Shutter
-                    //TODO
-                    //mBluetoothLeService.requestCameraStatus();
-
-                    byte[] command = {0x01, 0x01, 0x01};
-                    mBluetoothLeService.setCommand(command);
+                    toggleShutter();
                     break;
             }
         }
@@ -219,13 +271,110 @@ public class DeviceControlActivity extends AppCompatActivity {
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CHARS_DISCOVERED);
         intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
         intentFilter.addAction(BluetoothLeService.ACTION_WRITE_SUCCESS);
         return intentFilter;
     }
 
-    private void updateUIElements(){
-       //TODO
+    private void toggleShutter(){
+        if (cameraStatus != null){
+            byte[] command;
+            if (cameraStatus.busy){
+                command = new byte[]{0x01, 0x01, 0x00};
+                cameraStatus.busy = false;
+            } else {
+                command = new byte[]{0x01, 0x01, 0x01};
+                cameraStatus.busy = true;
+            }
+            mBluetoothLeService.setCommand(command);
+        } else {
+            mBluetoothLeService.requestCameraStatus();
+        }
     }
 
+    private void nextMode() {
+        //Next Camera Mode
+        if (cameraStatus != null){
+            if (cameraStatus.mode == (byte)0xEA) {
+                cameraStatus.mode = (byte)0xE8;
+            } else {
+                cameraStatus.mode = (byte)(cameraStatus.mode + 0x01);
+            }
+            byte[] command = new byte[]{0x3E,0x02,0x03,cameraStatus.mode};
+            mBluetoothLeService.setCommand(command);
+        } else {
+            mBluetoothLeService.requestCameraStatus();
+        }
+    }
+
+    private void previousMode() {
+        //Previous Camera Mode
+        if (cameraStatus != null){
+            if (cameraStatus.mode == (byte)0xE8) {
+                cameraStatus.mode = (byte)0xEA;
+            } else {
+                cameraStatus.mode = (byte)(cameraStatus.mode - 0x01);
+            }
+            byte[] command = new byte[]{0x3E,0x02,0x03,cameraStatus.mode};
+            mBluetoothLeService.setCommand(command);
+        } else {
+            mBluetoothLeService.requestCameraStatus();
+        }
+    }
+
+    private void updateUIElements(){
+        if (cameraStatus != null) {
+            switch (cameraStatus.mode) {
+                case (byte)0xE8:
+                    //Video
+                    modeImageView.setImageResource(R.drawable.ic_video_camera);
+                    if (cameraStatus.busy){
+                        shutterButton.setText(R.string.task_title_stop_record);
+                    } else {
+                        shutterButton.setText(R.string.task_title_start_record);
+                    }
+                    break;
+                case (byte)0xE9:
+                    //Photo
+                    modeImageView.setImageResource(R.drawable.ic_camera);
+                    shutterButton.setText(R.string.task_title_photo);
+                    break;
+                case (byte)0xEA:
+                    //Timelapse
+                    modeImageView.setImageResource(R.drawable.timelapse);
+                    if (cameraStatus.busy){
+                        shutterButton.setText(R.string.task_title_stop_record);
+                    } else {
+                        shutterButton.setText(R.string.task_title_start_record);
+                    }
+                    break;
+                default:
+                    modeImageView.setImageResource(0);
+                    Log.e(TAG,"Unknown mode: " + cameraStatus.mode);
+                    break;
+            }
+            shutterButton.setVisibility(View.VISIBLE);
+        } else {
+            modeImageView.setImageResource(0);
+            //shutterButton.setVisibility(View.INVISIBLE);
+            mBluetoothLeService.requestCameraStatus();
+        }
+    }
+
+    private void upKey(){
+        nextMode();
+    }
+
+    private void downKey(){
+        previousMode();
+    }
+
+    private void leftKey(){
+        finish();
+    }
+
+    private void rightKey(){
+
+    }
 }
