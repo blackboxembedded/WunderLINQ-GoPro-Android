@@ -23,15 +23,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.net.Uri;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiNetworkSpecifier;
 import android.os.Bundle;
 import android.os.IBinder;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -39,7 +44,14 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.net.wifi.WifiManager;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class DeviceControlActivity extends AppCompatActivity implements View.OnTouchListener  {
     private final static String TAG = DeviceControlActivity.class.getSimpleName();
@@ -58,7 +70,10 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
 
     private GestureDetectorListener gestureDetector;
 
-    private SharedPreferences sharedPrefs;
+    private String SSID;
+    private String password;
+    private WifiManager wifiManager;
+    ConnectivityManager connectivityManager;
 
     // Code to manage Service lifecycle.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -77,10 +92,19 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            Log.d(TAG, "onServiceDisconnected()");
             mBluetoothLeService = null;
         }
     };
+
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_NOTFICATION_ENABLED);
+        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+        intentFilter.addAction(BluetoothLeService.ACTION_SERVICE_DISCONNECTED);
+        return intentFilter;
+    }
 
     // Handles various events fired by the Service.
     // ACTION_GATT_CONNECTED: connected to a GATT server.
@@ -93,15 +117,13 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
+            } else if (BluetoothLeService.ACTION_SERVICE_DISCONNECTED.equals(action)){
+                finish();
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 finish();
-            } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-
             } else if (BluetoothLeService.ACTION_NOTFICATION_ENABLED.equals(action)) {
-                Log.d(TAG,"ACTION_NOTFICATION_ENABLED");
                 mBluetoothLeService.requestCameraStatus();
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                Log.d(TAG,"DATA_AVAILABLE");
                 Bundle bd = intent.getExtras();
                 if(bd != null){
                     if(bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE) != null) {
@@ -110,7 +132,11 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
                             String characteristicValue = Utils.ByteArraytoHex(data) + " ";
                             Log.d(TAG, "UUID: " + bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE) + " DATA: " + characteristicValue);
                             if(data[2] == 0x00 ){
-                                updateUIElements();
+                                if (data[1] == 0x17) {
+                                    mBluetoothLeService.requestWiFiSettings();
+                                } else {
+                                    updateUIElements();
+                                }
                             } else {
                                 mBluetoothLeService.requestCameraStatus();
                             }
@@ -127,15 +153,28 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
                             } else {
                                 mBluetoothLeService.requestCameraStatus();
                             }
+                        } else if (bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE).contains(GattAttributes.GOPRO_WIFI_SSID_CHARACTERISTIC)) {
+                            byte[] data = bd.getByteArray(BluetoothLeService.EXTRA_BYTE_VALUE);
+                            String characteristicValue = Utils.ByteArraytoHex(data) + " ";
+                            Log.d(TAG, "UUID: " + bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE) + " DATA: " + characteristicValue);
+                            SSID = new String(data);
+                            Log.d(TAG,"WIFI SSID: " + SSID);
+                            if ((SSID != null) && (password != null)){
+                                connectToWifi(SSID,password);
+                            }
+                        } else if (bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE).contains(GattAttributes.GOPRO_WIFI_PASSWORD_CHARACTERISTIC)) {
+                            byte[] data = bd.getByteArray(BluetoothLeService.EXTRA_BYTE_VALUE);
+                            String characteristicValue = Utils.ByteArraytoHex(data) + " ";
+                            Log.d(TAG, "UUID: " + bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE) + " DATA: " + characteristicValue);
+                            password = new String(data);
+                            Log.d(TAG,"WIFI SSID: " + password);
+                            if ((SSID != null) && (password != null)){
+                                connectToWifi(SSID,password);
+                            }
                         }
                     }
                 }
                 updateUIElements();
-            } else if(BluetoothLeService.ACTION_WRITE_SUCCESS.equals(action)){
-                Log.d(TAG,"Write Success Received");
-                if (cameraStatus == null) {
-                    //mBluetoothLeService.requestCameraStatus();
-                }
             }
         }
     };
@@ -183,7 +222,8 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
             }
         };
         view.setOnTouchListener(this);
-        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
@@ -218,7 +258,6 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        Log.d(TAG, "In onConfigChange");
         updateUIElements();
     }
 
@@ -252,11 +291,7 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
                 return true;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
                 //Open Camera Preview
-                if (cameraStatus != null){
-                    //TODO
-                } else {
-                    mBluetoothLeService.requestCameraStatus();
-                }
+                rightKey();
                 return true;
             case KeyEvent.KEYCODE_ESCAPE:
                 String wunderLINQApp = "wunderlinq://";
@@ -280,18 +315,6 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
             }
         }
     };
-
-    private static IntentFilter makeGattUpdateIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CHARS_DISCOVERED);
-        intentFilter.addAction(BluetoothLeService.ACTION_NOTFICATION_ENABLED);
-        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
-        intentFilter.addAction(BluetoothLeService.ACTION_WRITE_SUCCESS);
-        return intentFilter;
-    }
 
     private void toggleShutter(){
         if (cameraStatus != null){
@@ -333,6 +356,15 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
                 cameraStatus.mode = (byte)(cameraStatus.mode - 0x01);
             }
             byte[] command = new byte[]{0x3E,0x02,0x03,cameraStatus.mode};
+            mBluetoothLeService.setCommand(command);
+        } else {
+            mBluetoothLeService.requestCameraStatus();
+        }
+    }
+
+    private void enableWifi() {
+        if (cameraStatus != null){
+            byte[] command = new byte[]{0x17, 0x01, 0x01};
             mBluetoothLeService.setCommand(command);
         } else {
             mBluetoothLeService.requestCameraStatus();
@@ -391,6 +423,108 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
     }
 
     private void rightKey(){
+        enableWifi();
+    }
 
+    public void disconnectFromWifi(){
+        //Unregistering network callback instance supplied to requestNetwork call disconnects phone from the connected network
+        connectivityManager.unregisterNetworkCallback(networkCallback);
+    }
+
+    /**
+     * Connect to the specified wifi network.
+     *
+     * @param ssid     - The wifi network SSID
+     * @param password - the wifi password
+     */
+    private void connectToWifi(String ssid, String password) {
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.Q) {
+            try {
+                Log.e(TAG,"connection wifi pre Q");
+                WifiConfiguration wifiConfig = new WifiConfiguration();
+                wifiConfig.SSID = "\"" + ssid + "\"";
+                wifiConfig.preSharedKey = "\"" + password + "\"";
+                int netId = wifiManager.addNetwork(wifiConfig);
+                wifiManager.disconnect();
+                wifiManager.enableNetwork(netId, true);
+                wifiManager.reconnect();
+
+            } catch ( Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.e(TAG,"connection wifi  Q");
+            WifiNetworkSpecifier wifiNetworkSpecifier = new WifiNetworkSpecifier.Builder()
+                    .setSsid(ssid)
+                    .setWpa2Passphrase(password)
+                    .build();
+
+            NetworkRequest networkRequest = new NetworkRequest.Builder()
+                    .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                    .setNetworkSpecifier(wifiNetworkSpecifier)
+                    .build();
+
+            connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            connectivityManager.requestNetwork(networkRequest, networkCallback);
+        }
+    }
+
+    private ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
+        @Override
+        public void onAvailable(Network network) {
+            super.onAvailable(network);
+            Log.e(TAG,"onAvailable");
+            connectivityManager.bindProcessToNetwork(network);
+            enablePreview();
+        }
+
+        @Override
+        public void onLosing(@NonNull Network network, int maxMsToLive) {
+            super.onLosing(network, maxMsToLive);
+            Log.e(TAG,"onLosing");
+        }
+
+        @Override
+        public void onLost(Network network) {
+            super.onLost(network);
+            Log.e(TAG, "losing active connection");
+            connectivityManager.bindProcessToNetwork(null);
+            connectivityManager.unregisterNetworkCallback(networkCallback);
+        }
+
+        @Override
+        public void onUnavailable() {
+            super.onUnavailable();
+            Log.e(TAG,"onUnavailable");
+        }
+    };
+
+    private void enablePreview(){
+        URL url = null;
+        try {
+            url = new URL("http://10.5.5.9:8080/gopro/camera/stream/start");
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        HttpURLConnection urlConnection = null;
+        try {
+            urlConnection = (HttpURLConnection) url.openConnection();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+            int data = in.read();
+            while (data != -1) {
+                char current = (char) data;
+                data = in.read();
+                System.out.print(current);
+            }
+            Log.d(TAG, "Response Code: " + urlConnection.getResponseCode());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            urlConnection.disconnect();
+        }
     }
 }

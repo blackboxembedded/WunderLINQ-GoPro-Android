@@ -76,6 +76,8 @@ public class BluetoothLeService extends Service {
         SIGNED
     }
 
+    private static BluetoothGattCharacteristic wifiSSIDCharacteristic;
+    private static BluetoothGattCharacteristic wifiPasswordCharacteristic;
     private static BluetoothGattCharacteristic commandCharacteristic;
     private static BluetoothGattCharacteristic commandResponseCharacteristic;
     private static BluetoothGattCharacteristic queryCharacteristic;
@@ -106,6 +108,8 @@ public class BluetoothLeService extends Service {
             "android.bluetooth.device.action.ACTION_WRITE_SUCCESS";
     private final static String ACTION_GATT_DISCONNECTING =
             "com.blackboxembedded.bluetooth.le.ACTION_GATT_DISCONNECTING";
+    public final static String ACTION_SERVICE_DISCONNECTED =
+            "com.blackboxembedded.bluetooth.le.ACTION_SERVICE_DISCONNECTED";
     public final static String ACTION_NOTFICATION_ENABLED =
             "com.blackboxembedded.bluetooth.le.ACTION_NOTFICATION_ENABLED";
     public static final String EXTRA_BYTE_VALUE = "com.blackboxembedded.wunderlinq.backgroundservices." +
@@ -451,12 +455,13 @@ public class BluetoothLeService extends Service {
      * {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
      * callback.
      */
-    public static void disconnect() {
+    public void disconnect() {
         if (mBluetoothAdapter != null || mBluetoothGatt != null) {
             mBluetoothGatt.disconnect();
             String dataLog = "[" + mBluetoothDeviceName + "|" + mBluetoothDeviceAddress + "] " +
                     "Disconnection request sent";
             Log.d(TAG, dataLog);
+            broadcastConnectionUpdate(ACTION_SERVICE_DISCONNECTED);
             close();
         }
     }
@@ -710,6 +715,23 @@ public class BluetoothLeService extends Service {
                         setNotify(queryResponseCharacteristic,true);
                     }
                 }
+            } else if(UUIDDatabase.UUID_GOPRO_WIFI_SERVICE.equals(gattService.getUuid())){
+                uuid = gattService.getUuid().toString();
+                Log.d(TAG,"GoPro Wifi Control Service Found: " + uuid);
+                gattCharacteristics = gattService.getCharacteristics();
+                // Loops through available Characteristics.
+                for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
+                    uuid = gattCharacteristic.getUuid().toString();
+                    Log.d(TAG,"Characteristic Found: " + uuid);
+                    if (UUID.fromString(GattAttributes.GOPRO_WIFI_SSID_CHARACTERISTIC).equals(gattCharacteristic.getUuid())) {
+                        Log.d(TAG,"GoPro Wifi SSID Characteristic Found: " + uuid);
+                        wifiSSIDCharacteristic = gattCharacteristic;
+                    }
+                    if (UUID.fromString(GattAttributes.GOPRO_WIFI_PASSWORD_CHARACTERISTIC).equals(gattCharacteristic.getUuid())){
+                        Log.d(TAG,"GoPro Wifi Password Characteristic Found: " + uuid);
+                        wifiPasswordCharacteristic = gattCharacteristic;
+                    }
+                }
             }
         }
         broadcastConnectionUpdate(ACTION_GATT_CHARS_DISCOVERED);
@@ -803,5 +825,10 @@ public class BluetoothLeService extends Service {
                 writeCharacteristic(queryCharacteristic, command, WriteType.WITH_RESPONSE);
             }
         }
+    }
+
+    public void requestWiFiSettings() {
+        readCharacteristic(wifiSSIDCharacteristic);
+        readCharacteristic(wifiPasswordCharacteristic);
     }
 }

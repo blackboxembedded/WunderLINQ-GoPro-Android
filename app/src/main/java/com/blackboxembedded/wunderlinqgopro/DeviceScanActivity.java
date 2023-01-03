@@ -74,7 +74,7 @@ public class DeviceScanActivity extends AppCompatActivity {
 
     private static final int REQUEST_ENABLE_BT = 1;
     // Stops scanning after 10 seconds.
-    private static final long SCAN_PERIOD = 10000;
+    private static final long SCAN_PERIOD = 20000;
 
     private static final int PERMISSION_REQUEST_BLUETOOTH_CONNECT = 100;
     private static final int PERMISSION_REQUEST_BLUETOOTH_SCAN = 101;
@@ -82,7 +82,6 @@ public class DeviceScanActivity extends AppCompatActivity {
     private static final int SETTINGS_CHECK = 10;
 
     ListView listView;
-    Button scanButton;
 
     private int lastPosition = 0;
 
@@ -116,17 +115,6 @@ public class DeviceScanActivity extends AppCompatActivity {
             }
         });
 
-        scanButton = findViewById(R.id.scanButton);
-        scanButton.setEnabled(false);
-        scanButton.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View v) {
-                mLeDeviceListAdapter.clear();
-                scanLeDevice(true);
-                scanButton.setEnabled(false);
-            }
-        });
-
         getSupportActionBar().setTitle(R.string.cameralist_title);
         mHandler = new Handler();
 
@@ -156,6 +144,9 @@ public class DeviceScanActivity extends AppCompatActivity {
         }
         if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_SCAN}, PERMISSION_REQUEST_BLUETOOTH_SCAN);
+        }
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, PERMISSION_REQUEST_BLUETOOTH_CONNECT);
         }
     }
 
@@ -282,7 +273,6 @@ public class DeviceScanActivity extends AppCompatActivity {
                         } else {
                             mScanning = false;
                             bluetoothLeScanner.stopScan(mLeScanCallback);
-                            scanButton.setEnabled(true);
                         }
                     }
                 }, SCAN_PERIOD);
@@ -292,7 +282,6 @@ public class DeviceScanActivity extends AppCompatActivity {
             } else {
                 mScanning = false;
                 bluetoothLeScanner.stopScan(mLeScanCallback);
-                scanButton.setEnabled(true);
             }
         }
     }
