@@ -326,61 +326,6 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
         }
     };
 
-    private void toggleShutter(){
-        if (cameraStatus != null){
-            byte[] command;
-            if (cameraStatus.busy){
-                command = new byte[]{0x01, 0x01, 0x00};
-                cameraStatus.busy = false;
-            } else {
-                command = new byte[]{0x01, 0x01, 0x01};
-                cameraStatus.busy = true;
-            }
-            mBluetoothLeService.setCommand(command);
-        } else {
-            mBluetoothLeService.requestCameraStatus();
-        }
-    }
-
-    private void nextMode() {
-        //Next Camera Mode
-        if (cameraStatus != null){
-            if (cameraStatus.mode == (byte)0xEA) {
-                cameraStatus.mode = (byte)0xE8;
-            } else {
-                cameraStatus.mode = (byte)(cameraStatus.mode + 0x01);
-            }
-            byte[] command = new byte[]{0x3E,0x02,0x03,cameraStatus.mode};
-            mBluetoothLeService.setCommand(command);
-        } else {
-            mBluetoothLeService.requestCameraStatus();
-        }
-    }
-
-    private void previousMode() {
-        //Previous Camera Mode
-        if (cameraStatus != null){
-            if (cameraStatus.mode == (byte)0xE8) {
-                cameraStatus.mode = (byte)0xEA;
-            } else {
-                cameraStatus.mode = (byte)(cameraStatus.mode - 0x01);
-            }
-            byte[] command = new byte[]{0x3E,0x02,0x03,cameraStatus.mode};
-            mBluetoothLeService.setCommand(command);
-        } else {
-            mBluetoothLeService.requestCameraStatus();
-        }
-    }
-
-    private void enableWifi() {
-        if (cameraStatus != null){
-            byte[] command = new byte[]{0x17, 0x01, 0x01};
-            mBluetoothLeService.setCommand(command);
-        } else {
-            mBluetoothLeService.requestCameraStatus();
-        }
-    }
-
     private void updateUIElements(){
         if (cameraStatus != null) {
             switch (cameraStatus.mode) {
@@ -434,6 +379,63 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
     private void leftKey(){ finish(); }
 
     private void rightKey(){ enableWifi(); }
+
+    private void toggleShutter(){
+        if (cameraStatus != null){
+            byte[] command;
+            if (cameraStatus.busy){
+                command = new byte[]{0x01, 0x01, 0x00};
+                cameraStatus.busy = false;
+            } else {
+                command = new byte[]{0x01, 0x01, 0x01};
+                cameraStatus.busy = true;
+            }
+            mBluetoothLeService.setCommand(command);
+        } else {
+            mBluetoothLeService.requestCameraStatus();
+        }
+    }
+
+    private void nextMode() {
+        //Next Camera Mode
+        if (cameraStatus != null){
+            if (cameraStatus.mode == (byte)0xEA) {
+                cameraStatus.mode = (byte)0xE8;
+            } else {
+                cameraStatus.mode = (byte)(cameraStatus.mode + 0x01);
+            }
+            byte[] command = new byte[]{0x3E,0x02,0x03,cameraStatus.mode};
+            mBluetoothLeService.setCommand(command);
+        } else {
+            mBluetoothLeService.requestCameraStatus();
+        }
+    }
+
+    private void previousMode() {
+        //Previous Camera Mode
+        if (cameraStatus != null){
+            if (cameraStatus.mode == (byte)0xE8) {
+                cameraStatus.mode = (byte)0xEA;
+            } else {
+                cameraStatus.mode = (byte)(cameraStatus.mode - 0x01);
+            }
+            byte[] command = new byte[]{0x3E,0x02,0x03,cameraStatus.mode};
+            mBluetoothLeService.setCommand(command);
+        } else {
+            mBluetoothLeService.requestCameraStatus();
+        }
+    }
+
+    private void enableWifi() {
+        if (cameraStatus != null){
+            if (!cameraStatus.busy) {
+                byte[] command = new byte[]{0x17, 0x01, 0x01};
+                mBluetoothLeService.setCommand(command);
+            }
+        } else {
+            mBluetoothLeService.requestCameraStatus();
+        }
+    }
 
     public void disconnectFromWifi(){
         //Unregistering network callback instance supplied to requestNetwork call disconnects phone from the connected network

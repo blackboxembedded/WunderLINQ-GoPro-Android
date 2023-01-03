@@ -31,6 +31,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -84,6 +85,7 @@ public class DeviceScanActivity extends AppCompatActivity {
     ListView listView;
 
     private int lastPosition = 0;
+    private int highlightColor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +117,8 @@ public class DeviceScanActivity extends AppCompatActivity {
             }
         });
 
+        highlightColor = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this).getInt("prefHighlightColor", R.color.colorAccent);
+
         getSupportActionBar().setTitle(R.string.cameralist_title);
         mHandler = new Handler();
 
@@ -138,27 +142,21 @@ public class DeviceScanActivity extends AppCompatActivity {
             return;
         }
 
-        // Check permissions
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_FINE_LOCATION);
-        }
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_SCAN}, PERMISSION_REQUEST_BLUETOOTH_SCAN);
-        }
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, PERMISSION_REQUEST_BLUETOOTH_CONNECT);
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
+        // Check permissions
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_FINE_LOCATION);
+        }
+
         // Ensures Bluetooth is enabled on the device.  If Bluetooth is not currently enabled,
         // fire an intent to display a dialog asking the user to grant permission to enable it.
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, PERMISSION_REQUEST_BLUETOOTH_CONNECT);
-        } else {
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S ||
+                (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED)) {
             if (!mBluetoothAdapter.isEnabled()) {
                 if (!mBluetoothAdapter.isEnabled()) {
                     Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -171,9 +169,6 @@ public class DeviceScanActivity extends AppCompatActivity {
             listView.setAdapter(mLeDeviceListAdapter);
             scanLeDevice(true);
         }
-
-        int highlightColor = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this).getInt("prefHighlightColor", R.color.colorAccent);
-        listView.setSelector(new ColorDrawable(highlightColor));
     }
 
     @Override
@@ -183,8 +178,7 @@ public class DeviceScanActivity extends AppCompatActivity {
             finish();
             return;
         } else if (requestCode == SETTINGS_CHECK) {
-            int highlightColor = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this).getInt("prefHighlightColor", R.color.colorAccent);
-            listView.setSelector(new ColorDrawable(highlightColor));
+            highlightColor = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this).getInt("prefHighlightColor", R.color.colorAccent);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -223,17 +217,21 @@ public class DeviceScanActivity extends AppCompatActivity {
             case KeyEvent.KEYCODE_PLUS:
             case KeyEvent.KEYCODE_NUMPAD_ADD:
                 if (listView.getSelectedItemPosition() == 0 && lastPosition == 0){
+                    Log.d(TAG,"Set Selection: " + (listView.getCount() - 1));
                     listView.setSelection(listView.getCount() - 1);
                 }
                 lastPosition = listView.getSelectedItemPosition();
+                mLeDeviceListAdapter.notifyDataSetChanged();
                 return true;
             case KeyEvent.KEYCODE_DPAD_DOWN:
             case KeyEvent.KEYCODE_MINUS:
             case KeyEvent.KEYCODE_NUMPAD_SUBTRACT:
                 if ((listView.getSelectedItemPosition() == (listView.getCount() - 1)) && lastPosition == (listView.getCount() - 1) ){
+                    Log.d(TAG,"Set Selection: 0");
                     listView.setSelection(0);
                 }
                 lastPosition = listView.getSelectedItemPosition();
+                mLeDeviceListAdapter.notifyDataSetChanged();
                 return true;
             case KeyEvent.KEYCODE_ESCAPE:
                 String callingApp = "wunderlinq://";
@@ -355,6 +353,12 @@ public class DeviceScanActivity extends AppCompatActivity {
                 else
                     viewHolder.deviceName.setText(R.string.unknown_device);
             }
+
+            if (i == lastPosition) {
+                view.setBackgroundColor(highlightColor);
+                // set your color
+            }
+
             return view;
         }
     }
@@ -394,12 +398,66 @@ public class DeviceScanActivity extends AppCompatActivity {
         if (grantResults != null) {
             switch (requestCode) {
                 case PERMISSION_REQUEST_FINE_LOCATION: {
-                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        Log.d(TAG, "Fine Location permission granted");
+                    if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        Log.d(TAG, "PERMISSION_REQUEST_FINE_LOCATION permission granted");
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+                                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_SCAN}, PERMISSION_REQUEST_BLUETOOTH_SCAN);
+                            }
+                        }
                     } else {
                         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                        builder.setTitle(getString(R.string.negative_alert_title));
+                        builder.setTitle(getString(R.string.negative_location_alert_title));
                         builder.setMessage(getString(R.string.negative_location_alert_body));
+                        builder.setPositiveButton(android.R.string.ok, null);
+                        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+                                        ActivityCompat.requestPermissions(DeviceScanActivity.this, new String[]{Manifest.permission.BLUETOOTH_SCAN}, PERMISSION_REQUEST_BLUETOOTH_SCAN);
+                                    }
+                                }
+                            }
+                        });
+                        builder.show();
+                    }
+                    break;
+                }
+                case PERMISSION_REQUEST_BLUETOOTH_SCAN: {
+                    if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        Log.d(TAG, "PERMISSION_REQUEST_BLUETOOTH_SCAN permission granted");
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, PERMISSION_REQUEST_BLUETOOTH_CONNECT);
+                            }
+                        }
+                    } else {
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                        builder.setTitle(getString(R.string.negative_btscan_alert_title));
+                        builder.setMessage(getString(R.string.negative_btscan_alert_body));
+                        builder.setPositiveButton(android.R.string.ok, null);
+                        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                                        ActivityCompat.requestPermissions(DeviceScanActivity.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, PERMISSION_REQUEST_BLUETOOTH_CONNECT);
+                                    }
+                                }
+                            }
+                        });
+                        builder.show();
+                    }
+                    break;
+                }
+                case PERMISSION_REQUEST_BLUETOOTH_CONNECT: {
+                    if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        Log.d(TAG, "PERMISSION_REQUEST_BLUETOOTH_CONNECT permission granted");
+                    } else {
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                        builder.setTitle(getString(R.string.negative_btconnect_alert_title));
+                        builder.setMessage(getString(R.string.negative_btconnect_alert_body));
                         builder.setPositiveButton(android.R.string.ok, null);
                         builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
                             @Override
@@ -408,6 +466,7 @@ public class DeviceScanActivity extends AppCompatActivity {
                         });
                         builder.show();
                     }
+                    break;
                 }
             }
         }

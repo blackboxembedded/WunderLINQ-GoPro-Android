@@ -2,6 +2,25 @@
     <string name="app_name">WunderLINQ GoPro Remote</string>
     <string name="ble_not_supported">BLE is not supported</string>
     <string name="cameralist_title">GoPros</string>
+    <string name="connected">Connected</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="error_bluetooth_not_supported">Bluetooth not supported.</string>
+    <string name="unknown_device">No Name</string>
+    <string name="location_alert_title">Location Request</string>
+    <string name="location_alert_body">Location Permissions are required for Bluetooth scanning</string>
+    <string name="negative_location_alert_title">Location Request Denied</string>
+    <string name="negative_location_alert_body">Location Permissions are required for Bluetooth scanning</string>
+
+    <string name="btscan_alert_title">Bluetooth Scan Request</string>
+    <string name="btscan_alert_body">Location Permissions are required for Bluetooth scanning</string>
+    <string name="negative_btscan_alert_title">Location Request Denied</string>
+    <string name="negative_btscan_alert_body">Location Permissions are required for Bluetooth scanning</string>
+
+    <string name="btconnect_alert_title">Bluetooth Connect Request</string>
+    <string name="btconnect_alert_body">Bluetooth Connect Permissions are required to connect to your GoPro</string>
+    <string name="negative_btconnect_alert_title">Bluetooth Connect Request Denied</string>
+    <string name="negative_btconnect_alert_body">Location Permissions are required for Bluetooth scanning</string>
+
     <string name="task_title_photo">Take Photo</string>
     <string name="task_title_start_record">Start Video Recording</string>
     <string name="task_title_stop_record">Stop Video Recording</string>
@@ -9,19 +28,8 @@
     <string name="task_title_stop_timelapse">Stop Timelapse Recording</string>
     <string name="pref_highlightColor_title">Highlight Color</string>
 
-
-    <string name="scanBtn">Scan</string>
-    <string name="connected">Connected</string>
-    <string name="disconnected">Disconnected</string>
-    <string name="error_bluetooth_not_supported">Bluetooth not supported.</string>
-    <string name="unknown_device">Unknown device</string>
-    <string name="location_alert_title">Location Request</string>
-    <string name="location_alert_body">Location Permissions are required for Bluetooth scanning</string>
-    <string name="negative_alert_title">Location Request Denied</string>
-    <string name="negative_location_alert_body">Location Permissions are required for Bluetooth scanning</string>
-    <string name="title_activity_settings">SettingsActivity</string>
-
     <!-- Preference Titles -->
+    <string name="title_activity_settings">Settings</string>
     <string name="ui_title">User Interface</string>
 
 
