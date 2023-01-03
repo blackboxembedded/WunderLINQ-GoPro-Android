@@ -52,6 +52,13 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+
+import org.videolan.libvlc.LibVLC;
+import org.videolan.libvlc.Media;
+import org.videolan.libvlc.MediaPlayer;
+import org.videolan.libvlc.util.VLCVideoLayout;
+
 
 public class DeviceControlActivity extends AppCompatActivity implements View.OnTouchListener  {
     private final static String TAG = DeviceControlActivity.class.getSimpleName();
@@ -74,6 +81,15 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
     private String password;
     private WifiManager wifiManager;
     ConnectivityManager connectivityManager;
+
+    private static final boolean USE_TEXTURE_VIEW = false;
+    private static final boolean ENABLE_SUBTITLES = true;
+    private static final String ASSET_FILENAME = "udp://@0.0.0.0:8554";
+    private VLCVideoLayout mVideoLayout = null;
+    private LibVLC mLibVLC = null;
+    private MediaPlayer mMediaPlayer = null;
+
+
 
     // Code to manage Service lifecycle.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -167,7 +183,7 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
                             String characteristicValue = Utils.ByteArraytoHex(data) + " ";
                             Log.d(TAG, "UUID: " + bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE) + " DATA: " + characteristicValue);
                             password = new String(data);
-                            Log.d(TAG,"WIFI SSID: " + password);
+                            Log.d(TAG,"WIFI Password: " + password);
                             if ((SSID != null) && (password != null)){
                                 connectToWifi(SSID,password);
                             }
@@ -225,8 +241,18 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
 
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
+        final ArrayList<String> args = new ArrayList<>();
+        args.add("-vvv");
+        mLibVLC = new LibVLC(this, args);
+        mMediaPlayer = new MediaPlayer(mLibVLC);
+        mVideoLayout = findViewById(R.id.video_layout);
+
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+
+        if (mBluetoothLeService != null) {
+            mBluetoothLeService.connect(mDeviceAddress, mDeviceName);
+        }
 
     }
 
@@ -234,9 +260,7 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
     protected void onResume() {
         super.onResume();
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
-        if (mBluetoothLeService != null) {
-            mBluetoothLeService.connect(mDeviceAddress, mDeviceName);
-        }
+
     }
 
     @Override
@@ -253,6 +277,9 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
         }
         unbindService(mServiceConnection);
         mBluetoothLeService = null;
+
+        mMediaPlayer.release();
+        mLibVLC.release();
     }
 
     @Override
@@ -462,6 +489,7 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
             NetworkRequest networkRequest = new NetworkRequest.Builder()
                     .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
                     .setNetworkSpecifier(wifiNetworkSpecifier)
+                    .removeCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                     .build();
 
             connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -526,5 +554,24 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
         } finally {
             urlConnection.disconnect();
         }
+        startPreview();
+    }
+
+    private void startPreview() {
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                // Stuff that updates the UI
+                mMediaPlayer.attachViews(mVideoLayout, null, ENABLE_SUBTITLES, USE_TEXTURE_VIEW);
+            }
+        });
+
+        Uri streamUri = Uri.parse(ASSET_FILENAME);
+        final Media media = new Media(mLibVLC, streamUri);
+        mMediaPlayer.setMedia(media);
+        media.release();
+        mMediaPlayer.play();
     }
 }
