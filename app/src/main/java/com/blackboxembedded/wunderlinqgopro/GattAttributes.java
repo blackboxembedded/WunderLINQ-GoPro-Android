@@ -28,7 +28,7 @@ public class GattAttributes {
     private static HashMap<UUID, String> attributesUUID = new HashMap<UUID, String>();
 
     /**
-     * GoPro Service and Characteristics
+     * OpenGoPro Service and Characteristics
      */
     public static final String GOPRO_CONTROL_SERVICE = "0000fea6-0000-1000-8000-00805f9b34fb";
     public static final String GOPRO_COMMAND_CHARACTERISTIC = "b5f90072-aa8d-11e3-9046-0002a5d5c51b";
@@ -65,7 +65,7 @@ public class GattAttributes {
     public static final String DEVICE_INFORMATION_SERVICE = "0000180a-0000-1000-8000-00805f9b34fb";
 
     static {
-        // GoPro
+        // OpenGoPro
         attributesUUID.put(UUIDDatabase.UUID_GOPRO_WIFI_SERVICE, "GoPro Control Service");
         attributesUUID.put(UUIDDatabase.UUID_GOPRO_WIFI_SSID_CHARACTERISTIC, "GoPro Wifi SSID Characteristic");
         attributesUUID.put(UUIDDatabase.UUID_GOPRO_WIFI_PASSWORD_CHARACTERISTIC, "GoPro Wifi Password Characteristic");

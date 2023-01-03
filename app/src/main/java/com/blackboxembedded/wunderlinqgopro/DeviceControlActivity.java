@@ -17,6 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 package com.blackboxembedded.wunderlinqgopro;
 
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -303,11 +304,14 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
                 rightKey();
                 return true;
             case KeyEvent.KEYCODE_ESCAPE:
-                String wunderLINQApp = "wunderlinq://";
+                String wunderLINQApp = "wunderlinq://datagrid";
                 Intent intent = new
                         Intent(android.content.Intent.ACTION_VIEW);
                 intent.setData(Uri.parse(wunderLINQApp));
-                startActivity(intent);
+                try {
+                    startActivity(intent);
+                } catch ( ActivityNotFoundException ex  ) {
+                }
                 return true;
             default:
                 return super.onKeyUp(keyCode, event);

@@ -25,7 +25,7 @@ import java.util.UUID;
 public class UUIDDatabase {
 
     /**
-     * GoPro related UUID
+     * OpenGoPro related UUID
      */
     public static final UUID UUID_GOPRO_WIFI_SERVICE = UUID
             .fromString(GattAttributes.GOPRO_WIFI_SERVICE);

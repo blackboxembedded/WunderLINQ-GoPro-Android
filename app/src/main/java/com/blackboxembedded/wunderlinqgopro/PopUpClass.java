@@ -1,6 +1,22 @@
+/*
+WunderLINQ Client Application
+Copyright (C) 2020  Keith Conger, Black Box Embedded, LLC
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 package com.blackboxembedded.wunderlinqgopro;
 
-import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.view.Gravity;
@@ -20,14 +36,12 @@ import java.util.ArrayList;
 
 public class PopUpClass {
 
-    //PopupWindow display method
     private static final boolean USE_TEXTURE_VIEW = false;
     private static final boolean ENABLE_SUBTITLES = false;
     private static final String STREAM_URL = "udp://@0.0.0.0:8554";
     private VLCVideoLayout mVideoLayout = null;
     private LibVLC mLibVLC = null;
     private MediaPlayer mMediaPlayer = null;
-
 
     public void showPopupWindow(final View view) {
 
@@ -44,16 +58,14 @@ public class PopUpClass {
 
         //Create a window with our parameters
         final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
-        popupWindow.setBackgroundDrawable(new ColorDrawable());
         //Set the location of the window on the screen
         popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
         popupWindow.getContentView().setFocusableInTouchMode(true);
 
-        //Initialize the elements of our window, install the handler
-
+        //Setup Media Player
         final ArrayList<String> args = new ArrayList<>();
-        //args.add("-vvv");
-        args.add("");
+        args.add("-vvv");
+        //args.add("");
         mLibVLC = new LibVLC(popupView.getContext(), args);
         mMediaPlayer = new MediaPlayer(mLibVLC);
         mVideoLayout = popupView.findViewById(R.id.video_layout);
@@ -65,13 +77,9 @@ public class PopUpClass {
         mMediaPlayer.setVolume(0);
         mMediaPlayer.play();
 
-
-        //Handler for clicking on the inactive zone of the window
-
         popupView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-
                 //Close the window when clicked
                 mMediaPlayer.release();
                 mLibVLC.release();
@@ -89,8 +97,6 @@ public class PopUpClass {
                 popupWindow.dismiss();
                 return true;
             }
-
         });
     }
-
 }
