@@ -165,7 +165,6 @@ public class BluetoothLeService extends Service {
 
     @Override
     public void onCreate() {
-        Log.d(TAG, "onCreate()");
         // The service is being created
         // Initializing the service
         if (!initialize()) {
@@ -176,13 +175,11 @@ public class BluetoothLeService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // The service is starting, due to a call to startService()
-        Log.d(TAG, "onStartCommand()");
         return mStartMode;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(TAG, "onBind()");
         // A client is binding to the service with bindService()
         mBound = true;
         return mBinder;
@@ -190,7 +187,6 @@ public class BluetoothLeService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.d(TAG, "onUnbind()");
         // All clients have unbound with unbindService()
         mBound = false;
         return mAllowRebind;
@@ -198,7 +194,6 @@ public class BluetoothLeService extends Service {
 
     @Override
     public void onRebind(Intent intent) {
-        Log.d(TAG, "onRebind()");
         // A client is binding to the service with bindService(),
         // after onUnbind() has already been called
     }
@@ -746,7 +741,6 @@ public class BluetoothLeService extends Service {
     }
 
     private static void nextCommand() {
-        Log.d(TAG, "nextCommand() ");
         // If there is still a command being executed then bail out
         if(commandQueueBusy) {
             return;
@@ -810,7 +804,6 @@ public class BluetoothLeService extends Service {
                 byte[] fullcommand = new byte[command.length + 1];
                 System.arraycopy(new byte[]{(byte) command.length}, 0, fullcommand, 0, 1);
                 System.arraycopy(command, 0, fullcommand, 1, command.length);
-                Log.d(TAG, Utils.ByteArraytoHex(fullcommand));
                 writeCharacteristic(commandCharacteristic, fullcommand, WriteType.WITH_RESPONSE);
             }
         }

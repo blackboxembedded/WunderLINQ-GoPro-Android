@@ -46,7 +46,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.net.wifi.WifiManager;
-import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 
 import java.io.BufferedInputStream;
@@ -73,6 +72,8 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
     private ImageView modeImageView;
     private Button shutterButton;
     PopUpClass popUpClass;
+
+    private int highlightColor;
 
     private GestureDetectorListener gestureDetector;
 
@@ -231,6 +232,9 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
         };
         view.setOnTouchListener(this);
 
+        highlightColor = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this).getInt("prefHighlightColor", R.color.colorAccent);
+        shutterButton.setBackgroundColor(highlightColor);
+
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
@@ -244,6 +248,7 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
 
     @Override
     protected void onResume() {
+        Log.d(TAG,"onResume()");
         super.onResume();
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
 
@@ -251,12 +256,14 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
 
     @Override
     protected void onPause() {
+        Log.d(TAG,"onPause()");
         super.onPause();
         unregisterReceiver(mGattUpdateReceiver);
     }
 
     @Override
     protected void onDestroy() {
+        Log.d(TAG,"onDestroy()");
         super.onDestroy();
         if (mBluetoothLeService != null) {
             mBluetoothLeService.disconnect();
