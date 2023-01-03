@@ -45,6 +45,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.net.wifi.WifiManager;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 
 import java.io.BufferedInputStream;
@@ -53,13 +54,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-
-import org.videolan.libvlc.LibVLC;
-import org.videolan.libvlc.Media;
-import org.videolan.libvlc.MediaPlayer;
-import org.videolan.libvlc.util.VLCVideoLayout;
-
 
 public class DeviceControlActivity extends AppCompatActivity implements View.OnTouchListener  {
     private final static String TAG = DeviceControlActivity.class.getSimpleName();
@@ -73,9 +67,11 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
 
     private CameraStatus cameraStatus;
 
+    private View view;
     private ProgressBar progressBar;
     private ImageView modeImageView;
     private Button shutterButton;
+    PopUpClass popUpClass;
 
     private GestureDetectorListener gestureDetector;
 
@@ -83,15 +79,6 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
     private String password;
     private WifiManager wifiManager;
     ConnectivityManager connectivityManager;
-
-    private static final boolean USE_TEXTURE_VIEW = false;
-    private static final boolean ENABLE_SUBTITLES = true;
-    private static final String ASSET_FILENAME = "udp://@0.0.0.0:8554";
-    private VLCVideoLayout mVideoLayout = null;
-    private LibVLC mLibVLC = null;
-    private MediaPlayer mMediaPlayer = null;
-
-
 
     // Code to manage Service lifecycle.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -168,6 +155,7 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
                                 cameraStatus.mode = data[17];
                                 cameraStatus.previewAvailable = (data[11] == 0x01);
                                 cameraStatus.wifiEnabled = (data[8] == 0x01);
+                                updateUIElements();
                             } else {
                                 mBluetoothLeService.requestCameraStatus();
                             }
@@ -192,7 +180,7 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
                         }
                     }
                 }
-                updateUIElements();
+
             }
         }
     };
@@ -211,7 +199,7 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         getSupportActionBar().setTitle(mDeviceName);
-        View view = findViewById(R.id.controlLayOut);
+        view = findViewById(R.id.controlLayOut);
         progressBar = findViewById(R.id.progress_loader);
         modeImageView = findViewById(R.id.modeIV);
         shutterButton = findViewById(R.id.shutterBtn);
@@ -244,12 +232,6 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
 
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
-        final ArrayList<String> args = new ArrayList<>();
-        args.add("-vvv");
-        mLibVLC = new LibVLC(this, args);
-        mMediaPlayer = new MediaPlayer(mLibVLC);
-        mVideoLayout = findViewById(R.id.video_layout);
-
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
@@ -280,9 +262,6 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
         }
         unbindService(mServiceConnection);
         mBluetoothLeService = null;
-
-        mMediaPlayer.release();
-        mLibVLC.release();
     }
 
     @Override
@@ -334,6 +313,7 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
                 return super.onKeyUp(keyCode, event);
         }
     }
+
     private View.OnClickListener mClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -451,13 +431,9 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
         previousMode();
     }
 
-    private void leftKey(){
-        finish();
-    }
+    private void leftKey(){ finish(); }
 
-    private void rightKey(){
-        enableWifi();
-    }
+    private void rightKey(){ enableWifi(); }
 
     public void disconnectFromWifi(){
         //Unregistering network callback instance supplied to requestNetwork call disconnects phone from the connected network
@@ -471,7 +447,10 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
      * @param password - the wifi password
      */
     private void connectToWifi(String ssid, String password) {
-        Log.e(TAG,"connectToWifi()");
+        Log.d(TAG,"connectToWifi()");
+        progressBar.setVisibility(View.VISIBLE);
+        modeImageView.setVisibility(View.INVISIBLE);
+        shutterButton.setVisibility(View.INVISIBLE);
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.Q) {
             try {
                 WifiConfiguration wifiConfig = new WifiConfiguration();
@@ -567,17 +546,13 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
 
             @Override
             public void run() {
-
                 // Stuff that updates the UI
-                mVideoLayout.setVisibility(View.VISIBLE);
-                mMediaPlayer.attachViews(mVideoLayout, null, ENABLE_SUBTITLES, USE_TEXTURE_VIEW);
+                progressBar.setVisibility(View.INVISIBLE);
+                modeImageView.setVisibility(View.VISIBLE);
+                shutterButton.setVisibility(View.VISIBLE);
+                popUpClass = new PopUpClass();
+                popUpClass.showPopupWindow(view);
             }
         });
-
-        Uri streamUri = Uri.parse(ASSET_FILENAME);
-        final Media media = new Media(mLibVLC, streamUri);
-        mMediaPlayer.setMedia(media);
-        media.release();
-        mMediaPlayer.play();
     }
 }

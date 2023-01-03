@@ -8,17 +8,6 @@
     android:background="?attr/backgroundColor"
     tools:context=".DeviceControlActivity">
 
-    <org.videolan.libvlc.util.VLCVideoLayout
-        android:id="@+id/video_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="false"
-        android:visibility="invisible"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
-
     <ImageView
         android:id="@+id/modeIV"
         android:layout_width="match_parent"
