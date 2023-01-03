@@ -45,6 +45,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.net.wifi.WifiManager;
+import android.widget.ProgressBar;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -72,6 +73,7 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
 
     private CameraStatus cameraStatus;
 
+    private ProgressBar progressBar;
     private ImageView modeImageView;
     private Button shutterButton;
 
@@ -210,6 +212,7 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
 
         getSupportActionBar().setTitle(mDeviceName);
         View view = findViewById(R.id.controlLayOut);
+        progressBar = findViewById(R.id.progress_loader);
         modeImageView = findViewById(R.id.modeIV);
         shutterButton = findViewById(R.id.shutterBtn);
         shutterButton.setOnClickListener(mClickListener);
@@ -429,9 +432,12 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
                     Log.e(TAG,"Unknown mode: " + cameraStatus.mode);
                     break;
             }
+            progressBar.setVisibility(View.INVISIBLE);
+            modeImageView.setVisibility(View.VISIBLE);
             shutterButton.setVisibility(View.VISIBLE);
         } else {
             modeImageView.setImageResource(0);
+            modeImageView.setVisibility(View.INVISIBLE);
             shutterButton.setVisibility(View.INVISIBLE);
             mBluetoothLeService.requestCameraStatus();
         }
@@ -465,9 +471,9 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
      * @param password - the wifi password
      */
     private void connectToWifi(String ssid, String password) {
+        Log.e(TAG,"connectToWifi()");
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.Q) {
             try {
-                Log.e(TAG,"connection wifi pre Q");
                 WifiConfiguration wifiConfig = new WifiConfiguration();
                 wifiConfig.SSID = "\"" + ssid + "\"";
                 wifiConfig.preSharedKey = "\"" + password + "\"";
@@ -480,7 +486,6 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
                 e.printStackTrace();
             }
         } else {
-            Log.e(TAG,"connection wifi  Q");
             WifiNetworkSpecifier wifiNetworkSpecifier = new WifiNetworkSpecifier.Builder()
                     .setSsid(ssid)
                     .setWpa2Passphrase(password)
@@ -564,6 +569,7 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
             public void run() {
 
                 // Stuff that updates the UI
+                mVideoLayout.setVisibility(View.VISIBLE);
                 mMediaPlayer.attachViews(mVideoLayout, null, ENABLE_SUBTITLES, USE_TEXTURE_VIEW);
             }
         });
