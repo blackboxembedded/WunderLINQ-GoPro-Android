@@ -111,7 +111,7 @@ public class DeviceScanActivity extends AppCompatActivity {
             }
         });
 
-        highlightColor = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this).getInt("prefHighlightColor", R.color.colorAccent);
+        highlightColor = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this).getInt("prefHighlightColor", getResources().getColor(R.color.colorAccent));
 
         getSupportActionBar().setTitle(R.string.cameralist_title);
         mHandler = new Handler();
@@ -172,7 +172,7 @@ public class DeviceScanActivity extends AppCompatActivity {
             finish();
             return;
         } else if (requestCode == SETTINGS_CHECK) {
-            highlightColor = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this).getInt("prefHighlightColor", R.color.colorAccent);
+            highlightColor = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this).getInt("prefHighlightColor", getResources().getColor(R.color.colorAccent));
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

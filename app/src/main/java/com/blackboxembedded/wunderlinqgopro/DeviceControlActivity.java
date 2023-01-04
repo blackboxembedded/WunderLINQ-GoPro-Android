@@ -232,7 +232,7 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
         };
         view.setOnTouchListener(this);
 
-        highlightColor = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this).getInt("prefHighlightColor", R.color.colorAccent);
+        highlightColor = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this).getInt("prefHighlightColor", getResources().getColor(R.color.colorAccent));
         shutterButton.setBackgroundColor(highlightColor);
 
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
