@@ -190,12 +190,19 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG,"onCreate()");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.device_control_activity);
 
         final Intent intent = getIntent();
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
+
+        if(mDeviceAddress == null){
+            Log.d(TAG, "NULL Address, going back to main activity");
+            final Intent mainIntent = new Intent(this, DeviceScanActivity.class);
+            startActivity(mainIntent);
+        }
 
         // Keep screen on
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -251,7 +258,7 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
         Log.d(TAG,"onResume()");
         super.onResume();
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
-
+        //updateUIElements();
     }
 
     @Override

@@ -451,7 +451,7 @@ public class BluetoothLeService extends Service {
      * callback.
      */
     public void disconnect() {
-        if (mBluetoothAdapter != null || mBluetoothGatt != null) {
+        if (mBluetoothAdapter != null && mBluetoothGatt != null) {
             mBluetoothGatt.disconnect();
             String dataLog = "[" + mBluetoothDeviceName + "|" + mBluetoothDeviceAddress + "] " +
                     "Disconnection request sent";
