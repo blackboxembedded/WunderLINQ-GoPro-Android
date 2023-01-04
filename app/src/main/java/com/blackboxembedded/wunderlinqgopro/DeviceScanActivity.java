@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -76,6 +77,9 @@ public class DeviceScanActivity extends AppCompatActivity {
 
     private int lastPosition = 0;
     private int highlightColor;
+
+    private CountDownTimer cTimer = null;
+    private boolean timerRunning = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,6 +184,9 @@ public class DeviceScanActivity extends AppCompatActivity {
             scanLeDevice(false);
             mLeDeviceListAdapter.clear();
         }
+        if (cTimer != null){
+            cancelTimer();
+        }
     }
 
     @Override
@@ -234,6 +241,7 @@ public class DeviceScanActivity extends AppCompatActivity {
     }
 
     private void scanLeDevice(final boolean enable) {
+        Log.d(TAG,"scanLeDevice()");
         if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, PERMISSION_REQUEST_BLUETOOTH_CONNECT);
         } else {
@@ -259,15 +267,20 @@ public class DeviceScanActivity extends AppCompatActivity {
                         } else {
                             mScanning = false;
                             bluetoothLeScanner.stopScan(mLeScanCallback);
+                            startTimer();
                         }
                     }
                 }, SCAN_PERIOD);
 
                 mScanning = true;
                 bluetoothLeScanner.startScan(bleScanFilter, bleScanSettings, mLeScanCallback);
+                if (cTimer != null){
+                    cancelTimer();
+                }
             } else {
                 mScanning = false;
                 bluetoothLeScanner.stopScan(mLeScanCallback);
+                startTimer();
             }
         }
     }
@@ -455,5 +468,27 @@ public class DeviceScanActivity extends AppCompatActivity {
                 break;
             }
         }
+    }
+    //start timer function
+    void startTimer() {
+        if(!timerRunning) {
+            cTimer = new CountDownTimer(10000, 1000) {
+                public void onTick(long millisUntilFinished) {
+                }
+
+                public void onFinish() {
+                    scanLeDevice(true);
+                    timerRunning = false;
+                }
+            };
+            timerRunning = true;
+            cTimer.start();
+        }
+    }
+
+    //cancel timer
+    void cancelTimer() {
+        if(cTimer!=null)
+            cTimer.cancel();
     }
 }
