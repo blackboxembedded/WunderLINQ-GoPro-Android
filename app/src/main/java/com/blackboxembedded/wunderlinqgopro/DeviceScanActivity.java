@@ -461,6 +461,7 @@ public class DeviceScanActivity extends AppCompatActivity {
                     builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
                         public void onDismiss(DialogInterface dialog) {
+                            finish();
                         }
                     });
                     builder.show();
