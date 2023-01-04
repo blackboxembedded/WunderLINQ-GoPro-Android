@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="location_alert_title">WunderLINQ vyžaduje oprávnění pro přístup k poloze tohoto zařízení</string>
+    <string name="location_alert_body">Udělte prosím oprávnění pro přístup k poloze tohoto zařízení</string>
+    <string name="negative_location_alert_body">Chybí oprávnění pro přístup k vaší poloze, nebude možné použít nekteré funkce.</string>
+    <string name="task_title_photo">Pořiď fotku</string>
+    <string name="task_title_start_record">Nahrávej video</string>
+    <string name="task_title_stop_record">Ukonči nahrávání videa</string>
+    <string name="title_activity_settings">Nastavení</string>
+    <string name="ui_title">Uživatelské prostředí</string>
+</resources>

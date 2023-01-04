@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="location_alert_title">WunderLINQ requiert votre position</string>
+    <string name="location_alert_body">WunderLINQ doit avoir accès à votre emplacement pour en permettre l\'enregistrement en arrière-plan. Cette permission est également utilisée pour les données telles que l\'altitude, la vitesse et la direction.</string>
+    <string name="negative_location_alert_body">Sans l\'accès à votre position, cette app ne sera pas en mesure d\'enregistrer votre itinéraire ni de faire un journal de votre position.</string>
+    <string name="task_title_photo">Caméra</string>
+    <string name="task_title_start_record">Démarrer enr. vidéo</string>
+    <string name="task_title_stop_record">Arrêt enr. vidéo</string>
+    <string name="title_activity_settings">Réglages</string>
+    <string name="ui_title">Interface utilisateur</string>
+</resources>

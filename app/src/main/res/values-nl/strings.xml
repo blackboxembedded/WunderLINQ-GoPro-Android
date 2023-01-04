@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="location_alert_title">WunderLINQ heeft locatie toestemming nodig</string>
+    <string name="location_alert_body">Geef toestemming voor locatie gebruik</string>
+    <string name="negative_location_alert_body">Door geen locatie toestemming, kan deze app je WunderLINQ niet zien op de achtergrond.</string>
+    <string name="task_title_photo">Maak Foto</string>
+    <string name="task_title_start_record">Start Opname</string>
+    <string name="task_title_stop_record">Stop Opname</string>
+    <string name="pref_highlightColor_title">Markeer Kleur</string>
+    <string name="title_activity_settings"/>
+    <string name="ui_title">Gebruikersinterface</string>
+</resources>

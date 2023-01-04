@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="location_alert_title">A WunderLINQ engedélyeket kér a helyzet megállapításához</string>
+    <string name="negative_location_alert_body">Mivel nem járultál hozzá a helyzetmeghatározáshoz, az applikáció nem lesz képes úti pontokat vagy az útvonalat rögzíteni.</string>
+    <string name="location_alert_body">A WunderLINQ hozzáférést kér a helyzetmeghatározáshoz a háttérbeli útvonal- és adatrögzítés miatt. A helyzetmeghatározás hozzáférés az olyan adatokhoz is szükséges, mint a magasság, a GPS sebesség vagy az iránylat.</string>
+    <string name="task_title_photo">Fénykép készítése</string>
+    <string name="task_title_start_record">Felvétel indítása</string>
+    <string name="task_title_stop_record">Felvétel leállítása</string>
+    <string name="pref_highlightColor_title">Kiemelés színe</string>
+    <string name="title_activity_settings">Beállítások</string>
+    <string name="ui_title">Felhasználói felület</string>
+</resources>

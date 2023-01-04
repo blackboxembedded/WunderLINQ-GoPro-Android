@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="location_alert_title">WunderLINQ necesita permisos para acceder a su ubicación</string>
+    <string name="location_alert_body">Por favor conceda permiso a su ubicación</string>
+    <string name="negative_location_alert_body">Dado que no se ha otorgado acceso a la ubicación, esta aplicación no podrá descubrir su WunderLINQ cuando esté en segundo plano.</string>
+    <string name="task_title_photo">Tomar fotografía</string>
+    <string name="task_title_start_record">Iniciar grabación</string>
+    <string name="task_title_stop_record">Detener grabación</string>
+    <string name="title_activity_settings">Configuraciones</string>
+    <string name="ui_title">Interfaz de Usuario</string>
+</resources>

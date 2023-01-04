@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">WunderLINQ GoPro Remote</string>
+    <string name="app_name" translatable="false">WunderLINQ GoPro Remote</string>
     <string name="ble_not_supported">BLE is not supported</string>
     <string name="cameralist_title">GoPros</string>
     <string name="connected">Connected</string>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="location_alert_title">WunderLINQ benötigt Zugriff auf Ihren Standort</string>
+    <string name="location_alert_body">WunderLINQ benutzt Standortdaten für die Aufzeichnung von Spuren (Tracks) und Daten wie Höhe, GPS-Geschwindigkeit und Richtung.</string>
+    <string name="negative_location_alert_body">Weil der Zugriff zu den Standortdaten nicht gewährt wurde, kann diese App keine Wegpunkte oder Ihren Standort mitschreiben.</string>
+    <string name="task_title_photo">Foto aufnehmen</string>
+    <string name="task_title_start_record">Video starten</string>
+    <string name="task_title_stop_record">Video beenden</string>
+    <string name="pref_highlightColor_title">Auswahl-Farbe</string>
+    <string name="title_activity_settings">Einstellungen</string>
+    <string name="ui_title">Bedienoberfläche</string>
+</resources>

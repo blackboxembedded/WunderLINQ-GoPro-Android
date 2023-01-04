@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="location_alert_title">ワンダーリンクはロケーションの許可が必要です</string>
+    <string name="negative_location_alert_body">位置情報へのアクセスが許可されていないためウェイポイントやロケーションログは使えません.</string>
+    <string name="location_alert_body">ロケーションへのアクセス許可をしてください</string>
+    <string name="task_title_photo">写真を撮る</string>
+    <string name="task_title_start_record">ビデオ撮影開始</string>
+    <string name="task_title_stop_record">動画撮影終了</string>
+    <string name="pref_highlightColor_title">ハイライトカラー</string>
+    <string name="title_activity_settings">設定</string>
+    <string name="ui_title">ユーザーインターフェイス</string>
+</resources>

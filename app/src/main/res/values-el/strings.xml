@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="location_alert_title">Το WunderLINQ χρειάζεται την άδειά σας για το προσδιορισμό της τοποθεσίας</string>
+    <string name="location_alert_body">Η εφαρμογή WunderLINQ χρειάζεται πρόσβαση στη τοποθεσία για να επιτρέπει στην εγγραφή διαδρομής στο παρασκήνιο και καταγραφή δεδομένων. Η πρόσβαση στη τοποθεσία, χρησιμοποιείται επίσης για προσδιορισμό του υψόμετρου, την ταχύτητα μέσω GPS και την κατεύθυνση.</string>
+    <string name="negative_location_alert_body">Εφόσον δεν έχει εκχωρηθεί δικαίωμα πρόσβασης στη τοποθεσία, η εφαρμογή δεν θα μπορεί να αποθηκεύσει προορισμούς ή να καταγράψει την τοποθεσία σας.</string>
+    <string name="task_title_photo">Λήψη φωτογραφίας</string>
+    <string name="task_title_start_record">Έναρξη καταγρ. βίντεο</string>
+    <string name="task_title_stop_record">Παύση καταγρ. βίντεο</string>
+    <string name="pref_highlightColor_title">Χρώμα επισήμανσης</string>
+    <string name="title_activity_settings">Ρυθμίσεις</string>
+    <string name="ui_title">Ρυθμίσεις χρήστη</string>
+</resources>

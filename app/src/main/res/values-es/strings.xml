@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="location_alert_title">WunderLINQ necesita permiso para el acceso a su localización</string>
+    <string name="location_alert_body">Por favor, permita el acceso a su localización</string>
+    <string name="negative_location_alert_body">Como el acceso a la localización no ha sido permitido, esta aplicación no podrá almacenar waypoints ni registrar (log) su localización.</string>
+    <string name="task_title_photo">Tomar foto</string>
+    <string name="task_title_start_record">Comenzar grabación</string>
+    <string name="task_title_stop_record">Terminar grabación</string>
+    <string name="title_activity_settings">Ajustes</string>
+    <string name="ui_title">Interfaz de usuario</string>
+</resources>
