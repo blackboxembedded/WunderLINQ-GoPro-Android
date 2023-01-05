@@ -94,9 +94,8 @@ public class DeviceScanActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(DeviceScanActivity.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, PERMISSION_REQUEST_BLUETOOTH_CONNECT);
-                } else {
+                if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S ||
+                        (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED)) {
                     final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
                     if (device == null) return;
                     final Intent intent = new Intent(DeviceScanActivity.this, DeviceControlActivity.class);
@@ -242,9 +241,8 @@ public class DeviceScanActivity extends AppCompatActivity {
 
     private void scanLeDevice(final boolean enable) {
         Log.d(TAG,"scanLeDevice()");
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, PERMISSION_REQUEST_BLUETOOTH_CONNECT);
-        } else {
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S ||
+                (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED)) {
             bluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
 
             ScanSettings bleScanSettings = new ScanSettings.Builder()
@@ -262,9 +260,8 @@ public class DeviceScanActivity extends AppCompatActivity {
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                            ActivityCompat.requestPermissions(DeviceScanActivity.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, PERMISSION_REQUEST_BLUETOOTH_CONNECT);
-                        } else {
+                        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S ||
+                                (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED)) {
                             mScanning = false;
                             bluetoothLeScanner.stopScan(mLeScanCallback);
                             startTimer();
@@ -297,9 +294,8 @@ public class DeviceScanActivity extends AppCompatActivity {
         }
 
         public void addDevice(Device device) {
-            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(DeviceScanActivity.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, PERMISSION_REQUEST_BLUETOOTH_CONNECT);
-            } else {
+            if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S ||
+                    (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED)) {
                 if (!mLeDevices.contains(device)) {
                     Log.d(TAG,"Found Camera: " + device.getDevice().getName());
                     mLeDevices.add(device);
@@ -344,9 +340,8 @@ public class DeviceScanActivity extends AppCompatActivity {
                 viewHolder = (ViewHolder) view.getTag();
             }
 
-            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(DeviceScanActivity.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, PERMISSION_REQUEST_BLUETOOTH_CONNECT);
-            } else {
+            if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S ||
+                    (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED)) {
                 BluetoothDevice device = mLeDevices.get(i).getDevice();
                 final String deviceName = device.getName();
                 if (deviceName != null && deviceName.length() > 0)
@@ -461,7 +456,6 @@ public class DeviceScanActivity extends AppCompatActivity {
                     builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
                         public void onDismiss(DialogInterface dialog) {
-                            finish();
                         }
                     });
                     builder.show();
