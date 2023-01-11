@@ -151,12 +151,36 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
                             byte[] data = bd.getByteArray(BluetoothLeService.EXTRA_BYTE_VALUE);
                             String characteristicValue = Utils.ByteArraytoHex(data) + " ";
                             Log.d(TAG, "UUID: " + bd.getString(BluetoothLeService.EXTRA_BYTE_UUID_VALUE) + " DATA: " + characteristicValue);
-                            if (data.length > 17) {
-                                cameraStatus = new CameraStatus();
-                                cameraStatus.busy = (data[5] == 0x01);
-                                cameraStatus.mode = data[17];
-                                cameraStatus.previewAvailable = (data[11] == 0x01);
-                                cameraStatus.wifiEnabled = (data[8] == 0x01);
+                            if (data.length == (data[0] + 1)) {
+                                if (data.length > 17) {
+                                    cameraStatus = new CameraStatus();
+                                    cameraStatus.busy = (data[5] == 0x01);
+                                    if (data[12] == 0x60) {
+                                        cameraStatus.openGoPro = true;
+                                        cameraStatus.mode = data[17];
+                                    } else if (data[12] == 0x2C) {
+                                        cameraStatus.openGoPro = false;
+                                        switch (data[11]){
+                                            case (byte)0x00:
+                                                //Video
+                                                cameraStatus.mode = (byte)0xE8;
+                                                if(data[14] == 0x01){
+                                                    cameraStatus.mode = (byte)0xEA;
+                                                }
+                                                break;
+                                            case (byte)0x01:
+                                                //Photo
+                                                cameraStatus.mode = (byte)0xE9;
+                                                break;
+                                            case (byte)0x02:
+                                                //Multishot
+                                                cameraStatus.mode = (byte)0xEA;
+                                                break;
+                                        }
+                                    }
+                                    cameraStatus.previewAvailable = (data[11] == 0x01);
+                                    cameraStatus.wifiEnabled = (data[8] == 0x01);
+                                }
                                 updateUIElements();
                             } else {
                                 mBluetoothLeService.requestCameraStatus();
@@ -422,7 +446,19 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
             } else {
                 cameraStatus.mode = (byte)(cameraStatus.mode + 0x01);
             }
-            byte[] command = new byte[]{0x3E,0x02,0x03,cameraStatus.mode};
+            byte cmode = 0x00;
+            switch (cameraStatus.mode){
+                case (byte)0xE8:
+                    cmode = 0x00;
+                    break;
+                case (byte)0xE9:
+                    cmode = 0x01;
+                    break;
+                case (byte)0xEA:
+                    cmode = 0x02;
+                    break;
+            }
+            byte[] command = new byte[]{0x02,0x01,cmode};
             mBluetoothLeService.setCommand(command);
         } else {
             mBluetoothLeService.requestCameraStatus();
@@ -437,7 +473,19 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
             } else {
                 cameraStatus.mode = (byte)(cameraStatus.mode - 0x01);
             }
-            byte[] command = new byte[]{0x3E,0x02,0x03,cameraStatus.mode};
+            byte cmode = 0x00;
+            switch (cameraStatus.mode){
+                case (byte)0xE8:
+                    cmode = 0x00;
+                    break;
+                case (byte)0xE9:
+                    cmode = 0x01;
+                    break;
+                case (byte)0xEA:
+                    cmode = 0x02;
+                    break;
+            }
+            byte[] command = new byte[]{0x02,0x01,cmode};
             mBluetoothLeService.setCommand(command);
         } else {
             mBluetoothLeService.requestCameraStatus();
@@ -534,7 +582,11 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
     private void enablePreview(){
         URL url = null;
         try {
-            url = new URL("http://10.5.5.9:8080/gopro/camera/stream/start");
+            if (cameraStatus.openGoPro) {
+                url = new URL("http://10.5.5.9:8080/gopro/camera/stream/start");
+            } else {
+                url = new URL("http://10.5.5.9/gp/gpControl/execute?p1=gpStream&a1=proto_v2&c1=restart");
+            }
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

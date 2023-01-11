@@ -814,7 +814,7 @@ public class BluetoothLeService extends Service {
             if (!isNotifying(queryResponseCharacteristic)) {
                 setNotify(queryResponseCharacteristic,true);
             } else {
-                byte[] command = {0x05, 0x13, 0x08, 0x11, 0x37, 0x60};
+                byte[] command = {0x07, 0x13, 0x08, 0x11, 0x2B, 0x2C, 0x37, 0x60};
                 writeCharacteristic(queryCharacteristic, command, WriteType.WITH_RESPONSE);
             }
         }

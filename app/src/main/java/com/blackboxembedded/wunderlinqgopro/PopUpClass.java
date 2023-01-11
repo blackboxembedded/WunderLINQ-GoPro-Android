@@ -17,7 +17,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 package com.blackboxembedded.wunderlinqgopro;
 
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -64,8 +63,8 @@ public class PopUpClass {
 
         //Setup Media Player
         final ArrayList<String> args = new ArrayList<>();
-        args.add("-vvv");
-        //args.add("");
+        //args.add("-vvv");
+        args.add("--network-caching=0");
         mLibVLC = new LibVLC(popupView.getContext(), args);
         mMediaPlayer = new MediaPlayer(mLibVLC);
         mVideoLayout = popupView.findViewById(R.id.video_layout);

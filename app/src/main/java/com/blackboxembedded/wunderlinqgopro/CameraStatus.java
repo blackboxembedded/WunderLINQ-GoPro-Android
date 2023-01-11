@@ -22,4 +22,5 @@ public class CameraStatus {
     public byte mode;
     public boolean wifiEnabled;
     public boolean previewAvailable;
+    public boolean openGoPro;
 }
