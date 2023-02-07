@@ -242,39 +242,41 @@ public class DeviceScanActivity extends AppCompatActivity {
                 (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED)) {
             bluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
 
-            ScanSettings bleScanSettings = new ScanSettings.Builder()
-                    .setScanMode(ScanSettings.SCAN_MODE_BALANCED)
-                    .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-                    .build();
-            // devices UUID service mask
-            ParcelUuid parcelUuidMask = new ParcelUuid(UUID.fromString("0000FFFF-0000-0000-0000-000000000000"));
+            if (bluetoothLeScanner != null) {
+                ScanSettings bleScanSettings = new ScanSettings.Builder()
+                        .setScanMode(ScanSettings.SCAN_MODE_BALANCED)
+                        .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+                        .build();
+                // devices UUID service mask
+                ParcelUuid parcelUuidMask = new ParcelUuid(UUID.fromString("0000FFFF-0000-0000-0000-000000000000"));
 
-            List<ScanFilter> bleScanFilter = new ArrayList<>();
-            ScanFilter.Builder builder = new ScanFilter.Builder().setServiceUuid(new ParcelUuid(UUIDDatabase.UUID_GOPRO_CONTROL_SERVICE), parcelUuidMask);
-            bleScanFilter.add(builder.build());
-            if (enable) {
-                // Stops scanning after a pre-defined scan period.
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S ||
-                                (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED)) {
-                            mScanning = false;
-                            bluetoothLeScanner.stopScan(mLeScanCallback);
-                            startTimer();
+                List<ScanFilter> bleScanFilter = new ArrayList<>();
+                ScanFilter.Builder builder = new ScanFilter.Builder().setServiceUuid(new ParcelUuid(UUIDDatabase.UUID_GOPRO_CONTROL_SERVICE), parcelUuidMask);
+                bleScanFilter.add(builder.build());
+                if (enable) {
+                    // Stops scanning after a pre-defined scan period.
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S ||
+                                    (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED)) {
+                                mScanning = false;
+                                bluetoothLeScanner.stopScan(mLeScanCallback);
+                                startTimer();
+                            }
                         }
-                    }
-                }, SCAN_PERIOD);
+                    }, SCAN_PERIOD);
 
-                mScanning = true;
-                bluetoothLeScanner.startScan(bleScanFilter, bleScanSettings, mLeScanCallback);
-                if (cTimer != null){
-                    cancelTimer();
+                    mScanning = true;
+                    bluetoothLeScanner.startScan(bleScanFilter, bleScanSettings, mLeScanCallback);
+                    if (cTimer != null) {
+                        cancelTimer();
+                    }
+                } else {
+                    mScanning = false;
+                    bluetoothLeScanner.stopScan(mLeScanCallback);
+                    startTimer();
                 }
-            } else {
-                mScanning = false;
-                bluetoothLeScanner.stopScan(mLeScanCallback);
-                startTimer();
             }
         }
     }
