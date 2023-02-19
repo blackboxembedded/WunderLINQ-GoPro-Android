@@ -37,5 +37,22 @@
     <string name="title_activity_settings">Settings</string>
     <string name="ui_title">User Interface</string>
 
+    <!-- AboutActivity -->
+    <string name="appsettings_label">App Settings</string>
+    <string name="info_label">About</string>
+    <string name="about_title">About</string>
+    <string name="app_name_link" translatable="false">
+        <a href="http://www.wunderlinq.com">WunderLINQ™</a>
+    </string>
+    <string name="company_name_link" translatable="false">
+        <a href="https://www.blackboxembedded.com">Black Box Embedded, LLC</a>
+    </string>
+    <string name="version_label">Version:</string>
+    <string name="btn_documentation_title">Documentation</string>
+    <string name="btn_sendlogs_title">Send Logs</string>
+    <string name="sendlogs_subject" translatable="false">WunderLINQ GoPro Android Debug Logs</string>
+    <string name="sendlogs_body">Please describe your problem below:\n</string>
+    <string name="sendlogs_intent_title">Send Logs…</string>
+    <string name="sendlogs_email" translatable="false">support@blackboxembedded.com</string>
 
 </resources>

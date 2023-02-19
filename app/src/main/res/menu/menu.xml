@@ -1,8 +1,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/menu_settings"
+    <item
         android:icon="@drawable/ic_bars"
-        android:title=""
-        android:orderInCategory="100"
-        app:showAsAction="ifRoom"/>
+        android:title="Menu"
+        app:showAsAction="always">
+        <menu>
+            <item android:id="@+id/menu_settings"
+                android:title="@string/appsettings_label"
+                android:orderInCategory="1"
+                app:showAsAction="never|withText"/>
+            <item android:id="@+id/action_about"
+                android:title="@string/info_label"
+                android:orderInCategory="2"
+                app:showAsAction="never|withText"/>
+        </menu>
+    </item>
 </menu>

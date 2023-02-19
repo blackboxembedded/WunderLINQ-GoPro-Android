@@ -199,6 +199,11 @@ public class DeviceScanActivity extends AppCompatActivity {
                 Intent settingsIntent = new Intent(this, SettingsActivity.class);
                 startActivityForResult(settingsIntent, SETTINGS_CHECK);
                 return true;
+            case R.id.action_about:
+                //Launch Settings
+                Intent aboutIntent = new Intent(this, AboutActivity.class);
+                startActivity(aboutIntent);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
