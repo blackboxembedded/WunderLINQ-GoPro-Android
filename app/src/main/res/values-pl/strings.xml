@@ -9,4 +9,14 @@
     <string name="pref_highlightColor_title">Kolor podkreślenia</string>
     <string name="title_activity_settings">Ustawienia</string>
     <string name="ui_title">Panel użytkownika</string>
+    <string name="info_label">O nas</string>
+    <string name="about_title">O nas</string>
+    <string name="version_label">Wersja:</string>
+    <string name="btn_sendlogs_title">Wyślij logi</string>
+    <string name="sendlogs_body">Opisz swój problem poniżej:
+\n</string>
+    <string name="sendlogs_intent_title">Wyślij logi…</string>
+    <string name="appsettings_label">Ustawienia appki</string>
+    <string name="ble_not_supported">BLE nie jest wspierane</string>
+    <string name="cameralist_title">GoPros</string>
 </resources>
