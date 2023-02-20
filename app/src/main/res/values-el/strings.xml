@@ -9,4 +9,14 @@
     <string name="pref_highlightColor_title">Χρώμα επισήμανσης</string>
     <string name="title_activity_settings">Ρυθμίσεις</string>
     <string name="ui_title">Ρυθμίσεις χρήστη</string>
+    <string name="appsettings_label">Ρυθμίσεις εφαρμογής</string>
+    <string name="info_label">Περί</string>
+    <string name="version_label">Έκδοση:</string>
+    <string name="btn_sendlogs_title">Αποστολή αρχείων καταγραφής</string>
+    <string name="sendlogs_intent_title">Αποστολή αρχείων καταγραφής…</string>
+    <string name="about_title">Περί</string>
+    <string name="sendlogs_body">Παρακαλώ περιγράψτε το πρόβλημα στο πεδίο:
+\n</string>
+    <string name="ble_not_supported">Το Bluetooth χαμηλής κατανάλωσης δεν υποστηρίζεται</string>
+    <string name="cameralist_title">GoPros</string>
 </resources>
