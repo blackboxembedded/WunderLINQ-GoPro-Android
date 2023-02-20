@@ -8,4 +8,14 @@
     <string name="task_title_stop_record">Arrêt enr. vidéo</string>
     <string name="title_activity_settings">Réglages</string>
     <string name="ui_title">Interface utilisateur</string>
+    <string name="info_label">À propos</string>
+    <string name="about_title">À propos</string>
+    <string name="version_label">Version:</string>
+    <string name="btn_sendlogs_title">Envoyer les journaux</string>
+    <string name="sendlogs_body">Entrez une description du problème ci-dessous :
+\n</string>
+    <string name="sendlogs_intent_title">Envoyer les journaux…</string>
+    <string name="appsettings_label">Réglages</string>
+    <string name="ble_not_supported">Bluetooth à basse consommation non disponible</string>
+    <string name="cameralist_title">GoPros</string>
 </resources>
