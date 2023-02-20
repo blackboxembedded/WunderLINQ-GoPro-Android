@@ -8,4 +8,14 @@
     <string name="task_title_stop_record">Ukonči nahrávání videa</string>
     <string name="title_activity_settings">Nastavení</string>
     <string name="ui_title">Uživatelské prostředí</string>
+    <string name="info_label">O aplikaci</string>
+    <string name="about_title">O aplikaci</string>
+    <string name="version_label">Verze:</string>
+    <string name="btn_sendlogs_title">Odeslat logy</string>
+    <string name="sendlogs_body">Prosím popište problém (anglicky):
+\n</string>
+    <string name="sendlogs_intent_title">Odeslat logy…</string>
+    <string name="appsettings_label">Nastavení aplikace</string>
+    <string name="ble_not_supported">BLE není podporováno</string>
+    <string name="cameralist_title">GoPros</string>
 </resources>
