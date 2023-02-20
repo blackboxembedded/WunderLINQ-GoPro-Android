@@ -8,4 +8,14 @@
     <string name="task_title_stop_record">Terminar grabación</string>
     <string name="title_activity_settings">Ajustes</string>
     <string name="ui_title">Interfaz de usuario</string>
+    <string name="appsettings_label">Ajustes de la aplicación</string>
+    <string name="info_label">Acerca de</string>
+    <string name="about_title">Acerca de</string>
+    <string name="version_label">Versión:</string>
+    <string name="btn_sendlogs_title">Enviar Logs (registro)</string>
+    <string name="sendlogs_intent_title">Enviar Logs…</string>
+    <string name="sendlogs_body">Por favor, describa su problema a continuación:
+\n</string>
+    <string name="ble_not_supported">Bluetooth Low Energy (BLE) no está soportado</string>
+    <string name="cameralist_title">GoPros</string>
 </resources>
