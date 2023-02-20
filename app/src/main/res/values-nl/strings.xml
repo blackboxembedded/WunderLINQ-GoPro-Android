@@ -7,6 +7,16 @@
     <string name="task_title_start_record">Start Opname</string>
     <string name="task_title_stop_record">Stop Opname</string>
     <string name="pref_highlightColor_title">Markeer Kleur</string>
-    <string name="title_activity_settings"/>
+    <string name="title_activity_settings">Instellingen</string>
     <string name="ui_title">Gebruikersinterface</string>
+    <string name="info_label">Over</string>
+    <string name="about_title">Over</string>
+    <string name="btn_sendlogs_title">Stuur Logbestanden</string>
+    <string name="sendlogs_body">Beschrijf uw problem hieronder:
+\n</string>
+    <string name="sendlogs_intent_title">Stuur Logbestanden…</string>
+    <string name="ble_not_supported">BLE wordt niet ondersteund</string>
+    <string name="appsettings_label">App Instellingen</string>
+    <string name="version_label">Versie:</string>
+    <string name="cameralist_title">GoPros</string>
 </resources>
