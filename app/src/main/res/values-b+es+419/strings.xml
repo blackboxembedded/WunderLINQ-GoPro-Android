@@ -8,4 +8,10 @@
     <string name="task_title_stop_record">Detener grabación</string>
     <string name="title_activity_settings">Configuraciones</string>
     <string name="ui_title">Interfaz de Usuario</string>
+    <string name="sendlogs_intent_title">Enviar registros…</string>
+    <string name="btn_sendlogs_title">Enviar registros</string>
+    <string name="sendlogs_body">Por favor describa su problema a continuación:
+\n</string>
+    <string name="ble_not_supported">Sin soporte de Bluetooth Baja Energía.</string>
+    <string name="cameralist_title">GoPros</string>
 </resources>
