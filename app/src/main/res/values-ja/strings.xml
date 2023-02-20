@@ -9,4 +9,14 @@
     <string name="pref_highlightColor_title">ハイライトカラー</string>
     <string name="title_activity_settings">設定</string>
     <string name="ui_title">ユーザーインターフェイス</string>
+    <string name="appsettings_label">APP設定</string>
+    <string name="info_label">アバウト</string>
+    <string name="about_title">アバウト</string>
+    <string name="version_label">バージョン：</string>
+    <string name="btn_sendlogs_title">ログの送信</string>
+    <string name="sendlogs_intent_title">ログを送る・・・</string>
+    <string name="ble_not_supported">ブルートゥースＬＥに対応していません.</string>
+    <string name="sendlogs_body">以下に問題点を記述して下さい:
+\n</string>
+    <string name="cameralist_title">GoPros</string>
 </resources>
