@@ -9,4 +9,14 @@
     <string name="pref_highlightColor_title">Kiemelés színe</string>
     <string name="title_activity_settings">Beállítások</string>
     <string name="ui_title">Felhasználói felület</string>
+    <string name="info_label">Információk</string>
+    <string name="about_title">Információk</string>
+    <string name="btn_sendlogs_title">Elküldöttek</string>
+    <string name="sendlogs_intent_title">Elküldöttek…</string>
+    <string name="appsettings_label">Applikáció beállításai</string>
+    <string name="version_label">Verzió:</string>
+    <string name="sendlogs_body">Kérlek írd le a problémát:
+\n</string>
+    <string name="ble_not_supported">Ez az eszköz nem támogatja a BLE üzemmódot</string>
+    <string name="cameralist_title">GoPros</string>
 </resources>
