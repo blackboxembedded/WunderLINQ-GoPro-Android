@@ -9,4 +9,14 @@
     <string name="pref_highlightColor_title">Barva poudarka</string>
     <string name="title_activity_settings">Nastavitve</string>
     <string name="ui_title">Uporabniški vmesnik</string>
+    <string name="appsettings_label">Nastavitve aplikacije</string>
+    <string name="info_label">O aplikaciji</string>
+    <string name="about_title">O aplikaciji</string>
+    <string name="version_label">Verzija:</string>
+    <string name="btn_sendlogs_title">Pošlji dnevnik</string>
+    <string name="sendlogs_intent_title">Pošlji dnevnike…</string>
+    <string name="ble_not_supported">Bluetooth z nizko porabo energije - BLE ni podprt</string>
+    <string name="sendlogs_body">Prosimo spodaj opišite vaše težave:
+\n</string>
+    <string name="cameralist_title">GoPros</string>
 </resources>
