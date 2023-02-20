@@ -29,7 +29,7 @@
         android:layout_height="70dp"
         android:text=""
         app:backgroundTint="?attr/colorAccent"
-        android:textColor="?attr/buttonTextColor"
+        android:textColor="@color/white"
         android:textSize="24sp"
         android:textStyle="bold"
         android:layout_marginBottom="16dp"
