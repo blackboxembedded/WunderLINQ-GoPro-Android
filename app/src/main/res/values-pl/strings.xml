@@ -19,4 +19,8 @@
     <string name="appsettings_label">Ustawienia appki</string>
     <string name="ble_not_supported">BLE nie jest wspierane</string>
     <string name="cameralist_title">GoPros</string>
+    <string name="debug_settings_title">Ustawienia błędów</string>
+    <string name="pref_debuglogging_name">Włącz zapis błędów</string>
+    <string name="close_label">Zamknij</string>
+    <string name="pref_debuglogging_summary">Włącz tylko jeśli potrzebujesz do wsparcia. Może wpływać na wydajność działania. Wyłącz jak tylko nie potrzebujesz.</string>
 </resources>
