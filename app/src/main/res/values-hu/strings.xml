@@ -19,4 +19,8 @@
 \n</string>
     <string name="ble_not_supported">Ez az eszköz nem támogatja a BLE üzemmódot</string>
     <string name="cameralist_title">GoPros</string>
+    <string name="pref_debuglogging_name">Hibakeresési napló engedélyezése</string>
+    <string name="close_label">Bezár</string>
+    <string name="debug_settings_title">Hibakeresési beállítások</string>
+    <string name="pref_debuglogging_summary">Csak akkor aktiváld, ha a programtámogatásnak szüksége van rá, mert befolyásolhatja a teljesítményt, ha bekapcsolva marad. Kérlek deaktiváld ha végeztél.</string>
 </resources>
