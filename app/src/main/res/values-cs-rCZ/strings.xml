@@ -18,4 +18,8 @@
     <string name="appsettings_label">Nastavení aplikace</string>
     <string name="ble_not_supported">BLE není podporováno</string>
     <string name="cameralist_title">GoPros</string>
+    <string name="pref_debuglogging_name">Povolit rozšířené logování</string>
+    <string name="close_label">Zavřít</string>
+    <string name="debug_settings_title">Nastavení ladění</string>
+    <string name="pref_debuglogging_summary">Povolte pouze pro potřeby technické podpory, může mít vliv na výkon aplikace.</string>
 </resources>
