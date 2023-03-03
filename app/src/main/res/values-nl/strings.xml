@@ -19,4 +19,8 @@
     <string name="appsettings_label">App Instellingen</string>
     <string name="version_label">Versie:</string>
     <string name="cameralist_title">GoPros</string>
+    <string name="pref_debuglogging_name">Zet uitgebreide logging aan</string>
+    <string name="debug_settings_title">Instellen Voorkeuren</string>
+    <string name="close_label">Sluiten</string>
+    <string name="pref_debuglogging_summary">Zet deze optie alleen aan indien gevraagd door de helpdesk. Het aanlaten van deze functie kan impact hebben op de prestaties van de applicatie. Zet uit wanneer problemen zijn opgelost.</string>
 </resources>
