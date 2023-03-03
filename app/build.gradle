@@ -6,8 +6,8 @@ android {
         applicationId "com.blackboxembedded.wunderlinqgopro"
         minSdkVersion 23
         targetSdkVersion 33
-        versionCode 7
-        versionName "1.6"
+        versionCode 8
+        versionName "1.7"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -17,6 +17,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    namespace 'com.blackboxembedded.wunderlinqgopro'
 }
 
 dependencies {
