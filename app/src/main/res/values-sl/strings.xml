@@ -19,4 +19,8 @@
     <string name="sendlogs_body">Prosimo spodaj opišite vaše težave:
 \n</string>
     <string name="cameralist_title">GoPros</string>
+    <string name="pref_debuglogging_name">Omogoči beleženje razhroščevanja</string>
+    <string name="close_label">Zapri</string>
+    <string name="debug_settings_title">Nastavitve razhroščevanja</string>
+    <string name="pref_debuglogging_summary">Omogoči le če to potrebuje podporni servis saj lahko vpliva na delovanje aplikacije. Onemogočite ko je končano.</string>
 </resources>
