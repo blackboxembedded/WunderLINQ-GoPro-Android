@@ -13,6 +13,10 @@
                 android:title="@string/info_label"
                 android:orderInCategory="2"
                 app:showAsAction="never|withText"/>
+            <item android:id="@+id/action_exit"
+                android:title="@string/close_label"
+                android:orderInCategory="3"
+                app:showAsAction="always|withText"/>
         </menu>
     </item>
 </menu>

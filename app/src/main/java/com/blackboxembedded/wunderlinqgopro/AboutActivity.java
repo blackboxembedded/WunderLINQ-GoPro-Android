@@ -69,31 +69,18 @@ public class AboutActivity extends AppCompatActivity {
                 Date date = cal.getTime();
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd-HH:mm");
                 String curdatetime = formatter.format(date);
-                //Save logcat to file
-                File root = new File(getApplicationContext().getExternalFilesDir(null), "/debug/");
-                if(!root.exists()){
-                    if(!root.mkdirs()){
-                        Log.d(TAG,"Unable to create directory: " + root);
-                    }
-                }
-                File outputFile = new File(getApplicationContext().getExternalFilesDir(null),
-                        "/debug/logcat.txt");
-                try {
-                    Runtime.getRuntime().exec(
-                            "logcat -f " + outputFile.getAbsolutePath());
-                } catch (IOException e) {
-                    Log.d(TAG,"Error getting logcat!");
-                    e.printStackTrace();
-                }
                 //Send file(s) using email
-                Intent emailIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+                Intent emailIntent = new Intent(Intent.ACTION_SEND);
                 emailIntent.setType("text/plain");
                 String[] to;
                 to = new String[]{getString(R.string.sendlogs_email)};
                 emailIntent.putExtra(Intent.EXTRA_EMAIL, to);
                 ArrayList<Uri> uris = new ArrayList<>();
                 //Convert from paths to Android friendly Parcelable Uri's
-                uris.add(FileProvider.getUriForFile(AboutActivity.this, "com.blackboxembedded.wunderlinqgopro.fileprovider", outputFile));
+                File outputFile = new File(getApplicationContext().getExternalFilesDir(null), "wunderlinq-gopro.log");
+                if(outputFile.exists()) {
+                    uris.add(FileProvider.getUriForFile(AboutActivity.this, "com.blackboxembedded.wunderlinqgopro.fileprovider", outputFile));
+                }
                 emailIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
                 emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.sendlogs_subject) + " " + curdatetime);
                 emailIntent.putExtra(Intent.EXTRA_TEXT, "App Version: " + BuildConfig.VERSION_NAME + "\n"

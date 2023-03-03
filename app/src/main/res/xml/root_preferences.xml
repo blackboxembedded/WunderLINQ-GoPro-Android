@@ -7,5 +7,14 @@
             app:defaultValue="#0059ff"
             />
     </PreferenceCategory>
-
+    <PreferenceCategory
+        app:title="@string/debug_settings_title"
+        app:key="prefDebugCategory">
+        <CheckBoxPreference
+            app:defaultValue="false"
+            app:key="prefDebugLogging"
+            app:summary="@string/pref_debuglogging_summary"
+            app:title="@string/pref_debuglogging_name" >
+        </CheckBoxPreference>
+    </PreferenceCategory>
 </PreferenceScreen>

@@ -29,6 +29,7 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.os.ParcelUuid;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -53,6 +55,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -87,6 +91,47 @@ public class DeviceScanActivity extends AppCompatActivity {
 
         // Keep screen on
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        // Enable Debug Logging
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (sharedPrefs.getBoolean("prefDebugLogging", false)) {
+            File outputFile = new File(getApplicationContext().getExternalFilesDir(null), "wunderlinq-gopro.log");
+            // Check if the file size is larger than 20MB (20 * 1024 * 1024 bytes).
+            if (outputFile.exists() && outputFile.length() > 20 * 1024 * 1024) {
+                // Delete the file.
+                if (outputFile.delete()) {
+                    Log.d(TAG, "File deleted successfully.");
+                } else {
+                    Log.e(TAG, "Failed to delete file.");
+                }
+            } else {
+                Log.d(TAG, "File not over 20Mb");
+            }
+
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Log.d(TAG, "Starting Log File: " + outputFile.getAbsolutePath());
+                        Process process = Runtime.getRuntime().exec("logcat -f " + outputFile.getAbsolutePath());
+
+                        // Wait for the process to complete.
+                        int exitCode = process.waitFor();
+
+                        // Do some more work after the process completes.
+                        if (exitCode != 0) {
+                            // Handle error.
+                            Log.d(TAG, "ERROR exitCode: " + exitCode);
+                        } else {
+                            Log.d(TAG, "NO ERROR exitCode: " + exitCode);
+                        }
+                    } catch (IOException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
 
         setContentView(R.layout.device_activity_main);
         listView = findViewById(R.id.listview);
@@ -204,6 +249,9 @@ public class DeviceScanActivity extends AppCompatActivity {
                 Intent aboutIntent = new Intent(this, AboutActivity.class);
                 startActivity(aboutIntent);
                 return true;
+            case R.id.action_exit:
+                finishAffinity();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }

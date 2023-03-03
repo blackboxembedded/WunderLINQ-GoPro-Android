@@ -37,6 +37,11 @@
     <string name="title_activity_settings">Settings</string>
     <string name="ui_title">User Interface</string>
 
+    <string name="debug_settings_title">Debug Settings</string>
+    <string name="pref_debuglogging_name">Enable Debug Logging</string>
+    <string name="pref_debuglogging_summary">Only enable if needed by Support, may impact performance if left running.  Please disable when finished.</string>
+    <string name="close_label">Close</string>
+
     <!-- AboutActivity -->
     <string name="appsettings_label">App Settings</string>
     <string name="info_label">About</string>
