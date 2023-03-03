@@ -75,13 +75,13 @@ public class AboutActivity extends AppCompatActivity {
                 String[] to;
                 to = new String[]{getString(R.string.sendlogs_email)};
                 emailIntent.putExtra(Intent.EXTRA_EMAIL, to);
-                ArrayList<Uri> uris = new ArrayList<>();
                 //Convert from paths to Android friendly Parcelable Uri's
                 File outputFile = new File(getApplicationContext().getExternalFilesDir(null), "wunderlinq-gopro.log");
                 if(outputFile.exists()) {
+                    ArrayList<Uri> uris = new ArrayList<>();
                     uris.add(FileProvider.getUriForFile(AboutActivity.this, "com.blackboxembedded.wunderlinqgopro.fileprovider", outputFile));
+                    emailIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
                 }
-                emailIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
                 emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.sendlogs_subject) + " " + curdatetime);
                 emailIntent.putExtra(Intent.EXTRA_TEXT, "App Version: " + BuildConfig.VERSION_NAME + "\n"
                         + "Android Version: " + Build.VERSION.RELEASE + "\n"

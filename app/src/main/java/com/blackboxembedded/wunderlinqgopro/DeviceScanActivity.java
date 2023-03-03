@@ -245,11 +245,12 @@ public class DeviceScanActivity extends AppCompatActivity {
                 startActivityForResult(settingsIntent, SETTINGS_CHECK);
                 return true;
             case R.id.action_about:
-                //Launch Settings
+                //Launch About Screen
                 Intent aboutIntent = new Intent(this, AboutActivity.class);
                 startActivity(aboutIntent);
                 return true;
             case R.id.action_exit:
+                //Close App
                 finishAffinity();
                 break;
         }
