@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -38,6 +39,7 @@ import android.os.IBinder;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -420,7 +422,11 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
 
     private void leftKey(){ finish(); }
 
-    private void rightKey(){ enableWifi(); }
+    private void rightKey(){
+        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("prefEnablePreview", false)) {
+            enableWifi();
+        }
+    }
 
     private void toggleShutter(){
         if (cameraStatus != null){

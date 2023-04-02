@@ -6,6 +6,12 @@
             app:title="@string/pref_highlightColor_title"
             app:defaultValue="#0059ff"
             />
+        <CheckBoxPreference
+            app:defaultValue="false"
+            app:key="prefEnablePreview"
+            app:summary="@string/pref_preview_summary"
+            app:title="@string/pref_preview_name" >
+        </CheckBoxPreference>
     </PreferenceCategory>
     <PreferenceCategory
         app:title="@string/debug_settings_title"
