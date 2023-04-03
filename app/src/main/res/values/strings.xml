@@ -11,6 +11,9 @@
     <string name="negative_location_alert_title">Location Request Denied</string>
     <string name="negative_location_alert_body">Location Permissions are required for Bluetooth scanning</string>
 
+    <string name="location_services_alert_title">Location Services Required</string>
+    <string name="location_services_alert_body">Your device appears to have location services turned off. Please re-enable them to use this app.</string>
+
     <string name="location_request_alert_title">Location Permission Required</string>
     <string name="location_request_alert_body">The WunderLINQ GoPro Remote needs access to your location to scan for nearby GoPro Cameras.</string>
     <string name="bt_request_alert_title">Bluetooth Permission Required</string>
