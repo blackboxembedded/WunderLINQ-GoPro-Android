@@ -138,7 +138,7 @@ public class DeviceScanActivity extends AppCompatActivity {
             }).start();
         }
 
-        setContentView(R.layout.device_activity_main);
+        setContentView(R.layout.device_scan_activity);
         listView = findViewById(R.id.listview);
         listView.setClickable(true);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
