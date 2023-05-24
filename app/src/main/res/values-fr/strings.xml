@@ -22,4 +22,6 @@
     <string name="debug_settings_title">Réglages Debug</string>
     <string name="close_label">Fermer</string>
     <string name="pref_debuglogging_summary">Activer uniquement lorsque demandé par le support. Peut nuire aux performance. Désactiver après usage.</string>
+    <string name="btn_documentation_title">Documentation</string>
+    <string name="pref_highlightColor_title">Couleur de surbrillance</string>
 </resources>
