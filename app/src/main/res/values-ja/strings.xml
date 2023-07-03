@@ -6,7 +6,7 @@
     <string name="task_title_photo">写真を撮る</string>
     <string name="task_title_start_record">ビデオ撮影開始</string>
     <string name="task_title_stop_record">動画撮影終了</string>
-    <string name="pref_highlightColor_title">ハイライトカラー</string>
+    <string name="pref_highlightColor_title">カラーハイライト</string>
     <string name="title_activity_settings">設定</string>
     <string name="ui_title">ユーザーインターフェイス</string>
     <string name="appsettings_label">APP設定</string>
@@ -23,4 +23,6 @@
     <string name="pref_debuglogging_name">デバッグログを有効にする</string>
     <string name="debug_settings_title">デバッグ設定</string>
     <string name="close_label">閉じる</string>
+    <string name="btn_documentation_title">ドキュメント</string>
+    <string name="pref_preview_name">カメラプレビューを有効化</string>
 </resources>
