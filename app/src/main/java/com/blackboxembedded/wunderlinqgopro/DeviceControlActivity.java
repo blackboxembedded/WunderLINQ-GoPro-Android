@@ -244,12 +244,12 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
 
             @Override
             public void onSwipeUp() {
-                upKey();
+                nextMode();
             }
 
             @Override
             public void onSwipeDown() {
-                downKey();
+                previousMode();
             }
 
             @Override
@@ -343,6 +343,7 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
                 rightKey();
                 return true;
             case KeyEvent.KEYCODE_ESCAPE:
+                SoundManager.playSound(this, R.raw.enter);
                 String wunderLINQApp = "wunderlinq://datagrid";
                 Intent intent = new
                         Intent(android.content.Intent.ACTION_VIEW);
@@ -411,23 +412,20 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
         }
     }
 
-    private void upKey(){
-        nextMode();
+    private void leftKey(){
+        SoundManager.playSound(this, R.raw.directional);
+        finish();
     }
-
-    private void downKey(){
-        previousMode();
-    }
-
-    private void leftKey(){ finish(); }
 
     private void rightKey(){
+        SoundManager.playSound(this, R.raw.directional);
         if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("prefEnablePreview", false)) {
             enableWifi();
         }
     }
 
     private void toggleShutter(){
+        SoundManager.playSound(this, R.raw.enter);
         if (cameraStatus != null){
             byte[] command;
             if (cameraStatus.busy){
