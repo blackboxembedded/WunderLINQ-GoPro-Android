@@ -37,6 +37,7 @@ import android.os.IBinder;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -282,7 +283,8 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
     protected void onResume() {
         Log.d(TAG,"onResume()");
         super.onResume();
-        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+        ContextCompat.registerReceiver(this, mGattUpdateReceiver, makeGattUpdateIntentFilter(), ContextCompat.RECEIVER_EXPORTED);
+        //registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
         //updateUIElements();
     }
 
