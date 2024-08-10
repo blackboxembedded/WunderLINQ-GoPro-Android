@@ -420,8 +420,8 @@ public class DeviceControlActivity extends AppCompatActivity implements View.OnT
     }
 
     private void rightKey(){
-        SoundManager.playSound(this, R.raw.directional);
         if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("prefEnablePreview", false)) {
+            SoundManager.playSound(this, R.raw.directional);
             enableWifi();
         }
     }
