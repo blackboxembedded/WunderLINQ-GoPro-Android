@@ -6,6 +6,7 @@
     android:paddingLeft="10dp"
     android:paddingRight="10dp"
     android:gravity="center"
+    android:fitsSystemWindows="true"
     android:background="?attr/backgroundColor">
 
     <androidx.cardview.widget.CardView
