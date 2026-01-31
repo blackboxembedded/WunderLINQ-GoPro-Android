@@ -21,8 +21,11 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -61,7 +64,7 @@ public class AboutActivity extends AppCompatActivity {
 
         });
         TextView tvVersion = findViewById(R.id.tvVersion);
-        tvVersion.setText(String.format("%s %s", getString(R.string.version_label), BuildConfig.VERSION_NAME));
+        tvVersion.setText(String.format("%s %s", getString(R.string.version_label), getAppVersionName(this)));
         TextView tvCompany = findViewById(R.id.tvCompany);
         tvCompany.setMovementMethod(LinkMovementMethod.getInstance());
         Button btDocumentation = findViewById(R.id.btDocumentation);
@@ -95,7 +98,7 @@ public class AboutActivity extends AppCompatActivity {
                     emailIntent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(AboutActivity.this, "com.blackboxembedded.wunderlinqgopro.fileprovider", outputFile));
                 }
                 emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.sendlogs_subject) + " " + curdatetime);
-                emailIntent.putExtra(Intent.EXTRA_TEXT, "App Version: " + BuildConfig.VERSION_NAME + "\n"
+                emailIntent.putExtra(Intent.EXTRA_TEXT, "App Version: " + getAppVersionName(AboutActivity.this) + "\n"
                         + "Android Version: " + Build.VERSION.RELEASE + "\n"
                         + "Manufacturer, Model: " + Build.MANUFACTURER + ", " + Build.MODEL + "\n"
                         + getString(R.string.sendlogs_body));
@@ -140,5 +143,16 @@ public class AboutActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public String getAppVersionName(Context context) {
+        try {
+            PackageManager packageManager = context.getPackageManager();
+            PackageInfo packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
+            return packageInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return "Unknown"; // Handle the exception appropriately
+        }
     }
 }
